@@ -1,24 +1,24 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:async';
 import 'dart:convert' show utf8;
 
-class SensorPage extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:oscilloscope/oscilloscope.dart';
 
+class SensorPage extends StatefulWidget {
   const SensorPage({Key key, this.device}) : super(key: key);
   final BluetoothDevice device;
 
-  @override 
+  @override
   _SensorPageState createState() => _SensorPageState();
 }
 
 class _SensorPageState extends State<SensorPage> {
-  
-  final String SERVICE_UUID = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E';
-  final String CHARACTERISTIC_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E';
+  final String SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+  final String CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
   bool isReady;
   Stream<List<int>> stream;
+  List<double> traceDust = List();
 
   @override
   void initState() {
@@ -27,18 +27,14 @@ class _SensorPageState extends State<SensorPage> {
     connectToDevice();
   }
 
-  /* 
-    Connect to a selected device 
-  */
   connectToDevice() async {
-    if(widget.device == null){
+    if (widget.device == null) {
       _Pop();
       return;
     }
 
-    // Set timer for device connection attempt
-    new Timer(const Duration(seconds: 60), (){
-      if(!isReady){
+    new Timer(const Duration(seconds: 15), () {
+      if (!isReady) {
         disconnectFromDevice();
         _Pop();
       }
@@ -48,38 +44,40 @@ class _SensorPageState extends State<SensorPage> {
     discoverServices();
   }
 
-  /* 
-    Disconnect connected/attempted for connection device
-  */
-  disconnectFromDevice(){
-    if(widget.device == null) {
+  disconnectFromDevice() {
+    if (widget.device == null) {
       _Pop();
       return;
     }
-    
+
     widget.device.disconnect();
   }
 
-  /* 
-    Search for nearby available bluetooth device services to connect with
-  */
   discoverServices() async {
-    if(widget.device == null) {
+    if (widget.device == null) {
       _Pop();
       return;
     }
 
-    // Create a list of discovered bluetooth device services
     List<BluetoothService> services = await widget.device.discoverServices();
-    
-    // Compare each item in list if it has the same SERVICE and CHARACTERISTIC UUID.
-    // Extract the value inside the characteristic uuid if true.
-    services.forEach((service){
-      if(service.uuid.toString() == SERVICE_UUID) {
-        service.characteristics.forEach((characteristic){
+    services.forEach((service) {
+      print("SERVICE UUID FOUND:");
+      print(service.uuid.toString());
+      print("SERVICE UUID TO BE FOUND:");
+      print(SERVICE_UUID);
+      if (service.uuid.toString() == SERVICE_UUID) {
+        print("FOUND SERVICE UUID!!!!!!");
+        service.characteristics.forEach((characteristic) {
+          print("CHARACTERISTIC UUID FOUND:");
+          print(characteristic.uuid.toString());
+          print("CHARACTERISTIC UUID TO BE FOUND:");
+          print(CHARACTERISTIC_UUID);
           if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
+            print("FOUND CHARACTERISTIC UUID!!!!!!");
             characteristic.setNotifyValue(!characteristic.isNotifying);
             stream = characteristic.value;
+            
+
 
             setState(() {
               isReady = true;
@@ -89,27 +87,34 @@ class _SensorPageState extends State<SensorPage> {
       }
     });
 
-    if (isReady) {
+    if (!isReady) {
       _Pop();
     }
   }
 
-  Future<bool> _onWillPop(){
-    return showDialog(context: context, builder: (context)=> new AlertDialog(title: Text('Are you sure?'), content: Text('Do you want to disconnect device and go back?'), actions: <Widget>[
-      new FlatButton(onPressed: ()=> Navigator.of(context).pop(false), child: new Text('No')),
-      new FlatButton(onPressed: (){
-        disconnectFromDevice();
-        Navigator.of(context).pop(true);
-      }, child: new Text('Yes')),
-    ],
-    ) ??
-    false);
+  Future<bool> _onWillPop() {
+    return showDialog(
+        context: context,
+        builder: (context) =>
+            new AlertDialog(
+              title: Text('Are you sure?'),
+              content: Text('Do you want to disconnect device and go back?'),
+              actions: <Widget>[
+                new FlatButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: new Text('No')),
+                new FlatButton(
+                    onPressed: () {
+                      disconnectFromDevice();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: new Text('Yes')),
+              ],
+            ) ??
+            false);
   }
 
-  /* 
-    Show notification of device status
-  */
-  _Pop(){
+  _Pop() {
     Navigator.of(context).pop(true);
   }
 
@@ -117,45 +122,79 @@ class _SensorPageState extends State<SensorPage> {
     return utf8.decode(dataFromDevice);
   }
 
-  // Interface building
-  @override 
+  @override
   Widget build(BuildContext context) {
+    Oscilloscope oscilloscope = Oscilloscope(
+      showYAxis: true,
+      padding: 0.0,
+      backgroundColor: Colors.black,
+      traceColor: Colors.white,
+      yAxisMax: 3000.0,
+      yAxisMin: 0.0,
+      dataSet: traceDust,
+    );
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Temperature Sensor'),
+          title: Text('Hello World'),
         ),
-        body: Container(child: !isReady 
-        ? Center(
-          child: Text(
-          "Waiting...", style: TextStyle(fontSize: 24, color: Colors.red),
-          ),
-          )
-        : Container(
-          child: StreamBuilder<List<int>>(
-          stream: stream,
-          builder: (BuildContext context, AsyncSnapshot<List<int>> snapshot) {
-            if(snapshot.hasError) return Text('Error: ${snapshot.error}');
+        body: Container(
+            child: !isReady
+                ? Center(
+                    child: Text(
+                      "Waiting...",
+                      style: TextStyle(fontSize: 24, color: Colors.red),
+                    ),
+                  )
+                : Container(
+                    child: StreamBuilder<List<int>>(
+                      stream: stream,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<int>> snapshot) {
+                        if (snapshot.hasError)
+                          return Text('Error: ${snapshot.error}');
 
-            if(snapshot.connectionState == ConnectionState.active) {
-              var currentValue = _dataParser(snapshot.data);
+                        if (snapshot.connectionState ==
+                            ConnectionState.active) {
+                          var currentValue = _dataParser(snapshot.data);
+                          print("THIS IS THE CURRENT VALUE:");
+                          print(stream);
+                          print(snapshot.data);
+                          print(currentValue);
+                          traceDust.add(double.tryParse(currentValue) ?? 0);
 
-              return Center(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text('Current value from Sensor', 
-                  style: TextStyle(fontSize: 14)),
-                  Text('${currentValue} Celsius', style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 24))]));
-                
-            } else {
-              return Text('Check the stream');
-            }
-          },
-        ),
-      )),
-    ),
-  );
+                          return Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text('Current value from Espruino',
+                                          style: TextStyle(fontSize: 14)),
+                                      Text('${currentValue}!!!',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 24))
+                                    ]),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: oscilloscope,
+                              )
+                            ],
+                          ));
+                        } else {
+                          return Text('Check the stream');
+                        }
+                      },
+                    ),
+                  )),
+      ),
+    );
   }
 }

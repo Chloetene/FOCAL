@@ -14,8 +14,8 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  final String SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-  final String CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+  final String SERVICE_UUID = '00001800-0000-1000-8000-00805f9b34fb';
+  final String CHARACTERISTIC_UUID = '00002a00-0000-1000-8000-00805f9b34fb';
   bool isReady;
   Stream<List<int>> stream;
   List<double> traceDust = List();
@@ -74,10 +74,14 @@ class _SensorPageState extends State<SensorPage> {
           print(CHARACTERISTIC_UUID);
           if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
             print("FOUND CHARACTERISTIC UUID!!!!!!");
-            characteristic.setNotifyValue(!characteristic.isNotifying);
+            // characteristic.setNotifyValue(!characteristic.isNotifying);
             stream = characteristic.value;
-            
 
+            Future c = characteristic.read();
+
+            c.asStream().forEach((action) {
+              print(action);
+            });
 
             setState(() {
               isReady = true;

@@ -14,8 +14,10 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  final String SERVICE_UUID = '00001800-0000-1000-8000-00805f9b34fb';
-  final String CHARACTERISTIC_UUID = '00002a00-0000-1000-8000-00805f9b34fb';
+  // final String SERVICE_UUID = '00001800-0000-1000-8000-00805f9b34fb';
+  // final String CHARACTERISTIC_UUID = '00002a00-0000-1000-8000-00805f9b34fb';
+  final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
+  final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
   bool isReady;
   Stream<List<int>> stream;
   List<double> traceDust = List();
@@ -76,12 +78,14 @@ class _SensorPageState extends State<SensorPage> {
             print("FOUND CHARACTERISTIC UUID!!!!!!");
             // characteristic.setNotifyValue(!characteristic.isNotifying);
             stream = characteristic.value;
+            // stream = characteristic.read().asStream();
 
-            Future c = characteristic.read();
+            // Future c = characteristic.read();
 
-            c.asStream().forEach((action) {
-              print(action);
-            });
+            // c.asStream().forEach((action) {
+            //   print("LOOKIE HERE!");
+            //   print(action);
+            // });
 
             setState(() {
               isReady = true;
@@ -133,7 +137,7 @@ class _SensorPageState extends State<SensorPage> {
       padding: 0.0,
       backgroundColor: Colors.black,
       traceColor: Colors.white,
-      yAxisMax: 3000.0,
+      yAxisMax: 100.0,
       yAxisMin: 0.0,
       dataSet: traceDust,
     );
@@ -142,7 +146,7 @@ class _SensorPageState extends State<SensorPage> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Hello World'),
+          title: Text('Temperature Sensor'),
         ),
         body: Container(
             child: !isReady
@@ -162,11 +166,13 @@ class _SensorPageState extends State<SensorPage> {
 
                         if (snapshot.connectionState ==
                             ConnectionState.active) {
-                          var currentValue = _dataParser(snapshot.data);
+                          // var currentValue = _dataParser(snapshot.data);
+                          var currentValue = (snapshot.data)[0].toString();
                           print("THIS IS THE CURRENT VALUE:");
                           print(stream);
                           print(snapshot.data);
                           print(currentValue);
+                          
                           traceDust.add(double.tryParse(currentValue) ?? 0);
 
                           return Center(
@@ -180,7 +186,7 @@ class _SensorPageState extends State<SensorPage> {
                                     children: <Widget>[
                                       Text('Current value from Espruino',
                                           style: TextStyle(fontSize: 14)),
-                                      Text('${currentValue}!!!',
+                                      Text('${currentValue}*C',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 24))

@@ -76,7 +76,8 @@ class _SensorPageState extends State<SensorPage> {
           print(CHARACTERISTIC_UUID);
           if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
             print("FOUND CHARACTERISTIC UUID!!!!!!");
-            // characteristic.setNotifyValue(!characteristic.isNotifying);
+            characteristic.setNotifyValue(!characteristic.isNotifying);
+            // characteristic.read();
             stream = characteristic.value;
             // stream = characteristic.read().asStream();
 

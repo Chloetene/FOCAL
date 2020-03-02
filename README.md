@@ -1,16 +1,15 @@
 # ble_test
 
-A new Flutter project.
+Bluetooth setup for the CAIR app.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Steps on producing a stable app for debugging.
 
-A few resources to get you started if this is your first Flutter project:
+### flutter clean
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Cleans the directory of any previous debugged apk versions. (Sometimes needed when previous versions of the app are booted instead of the updated one)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### flutter run
+
+Builds the app for debugging connected to the terminal.

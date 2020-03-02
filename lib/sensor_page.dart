@@ -14,8 +14,6 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  // final String SERVICE_UUID = '00001800-0000-1000-8000-00805f9b34fb';
-  // final String CHARACTERISTIC_UUID = '00002a00-0000-1000-8000-00805f9b34fb';
   final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
   final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
   bool isReady;
@@ -29,6 +27,9 @@ class _SensorPageState extends State<SensorPage> {
     connectToDevice();
   }
 
+  /* 
+    Connect to the selected device with a 15 second timer before timeout
+  */
   connectToDevice() async {
     if (widget.device == null) {
       _Pop();
@@ -46,6 +47,9 @@ class _SensorPageState extends State<SensorPage> {
     discoverServices();
   }
 
+  /* 
+    Disconnect from the device
+  */
   disconnectFromDevice() {
     if (widget.device == null) {
       _Pop();
@@ -55,6 +59,9 @@ class _SensorPageState extends State<SensorPage> {
     widget.device.disconnect();
   }
 
+  /* 
+    Asynchrously check for device service and characteristic UUIDs 
+  */
   discoverServices() async {
     if (widget.device == null) {
       _Pop();
@@ -62,31 +69,19 @@ class _SensorPageState extends State<SensorPage> {
     }
 
     List<BluetoothService> services = await widget.device.discoverServices();
+    // Iterate through each found service UUIDs of the device
     services.forEach((service) {
-      print("SERVICE UUID FOUND:");
-      print(service.uuid.toString());
-      print("SERVICE UUID TO BE FOUND:");
-      print(SERVICE_UUID);
+      // Check if the wanted service UUID is available
       if (service.uuid.toString() == SERVICE_UUID) {
-        print("FOUND SERVICE UUID!!!!!!");
+        // Iterate through each found characteristic UUIDs of the device
         service.characteristics.forEach((characteristic) {
-          print("CHARACTERISTIC UUID FOUND:");
-          print(characteristic.uuid.toString());
-          print("CHARACTERISTIC UUID TO BE FOUND:");
-          print(CHARACTERISTIC_UUID);
+          // Check if the wanted characteristic UUID is available
           if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
-            print("FOUND CHARACTERISTIC UUID!!!!!!");
+            // Sets the notify parameter of the bluetooth device to FALSE to indicate
+            // most recent sent data was received successfully
             characteristic.setNotifyValue(!characteristic.isNotifying);
-            // characteristic.read();
+            // Read the value inside the characteristic UUID
             stream = characteristic.value;
-            // stream = characteristic.read().asStream();
-
-            // Future c = characteristic.read();
-
-            // c.asStream().forEach((action) {
-            //   print("LOOKIE HERE!");
-            //   print(action);
-            // });
 
             setState(() {
               isReady = true;
@@ -101,6 +96,9 @@ class _SensorPageState extends State<SensorPage> {
     }
   }
 
+  /* 
+    Display a notification that reasses the user for device disconnection
+  */
   Future<bool> _onWillPop() {
     return showDialog(
         context: context,
@@ -123,33 +121,45 @@ class _SensorPageState extends State<SensorPage> {
             false);
   }
 
+  /* 
+    Display a notification of current situation in the nav bar
+  */
   _Pop() {
     Navigator.of(context).pop(true);
   }
-
+  
+  /* 
+    Decodes received data using UTF8 configuration. NOTE: Not used in ble_test
+  */
   String _dataParser(List<int> dataFromDevice) {
     return utf8.decode(dataFromDevice);
   }
 
+  /* 
+    Widget building 
+  */
   @override
   Widget build(BuildContext context) {
+    // Oscilloscope settings
     Oscilloscope oscilloscope = Oscilloscope(
       showYAxis: true,
       padding: 0.0,
       backgroundColor: Colors.black,
       traceColor: Colors.white,
-      yAxisMax: 100.0,
-      yAxisMin: 0.0,
+      yAxisMax: 200.0,
+      yAxisMin: 40.0,
       dataSet: traceDust,
     );
 
+    // Sensor page display settings
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Temperature Sensor'),
+          title: Text('Sensor'),
         ),
         body: Container(
+            // Wait until device is connected and data was received successfully
             child: !isReady
                 ? Center(
                     child: Text(
@@ -167,15 +177,12 @@ class _SensorPageState extends State<SensorPage> {
 
                         if (snapshot.connectionState ==
                             ConnectionState.active) {
-                          // var currentValue = _dataParser(snapshot.data);
+                          // Get the data from received packet and convert to String
                           var currentValue = (snapshot.data)[0].toString();
-                          print("THIS IS THE CURRENT VALUE:");
-                          print(stream);
-                          print(snapshot.data);
-                          print(currentValue);
-                          
+                          // Add data to oscilloscope datapoints
                           traceDust.add(double.tryParse(currentValue) ?? 0);
 
+                          // Display data in the center of screen
                           return Center(
                               child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +194,7 @@ class _SensorPageState extends State<SensorPage> {
                                     children: <Widget>[
                                       Text('Current value from Espruino',
                                           style: TextStyle(fontSize: 14)),
-                                      Text('${currentValue}*C',
+                                      Text('${currentValue}',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 24))

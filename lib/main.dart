@@ -3,7 +3,7 @@
 // This sample shows an [AppBar] with two simple actions. The first action
 // opens a [SnackBar], while the second action navigates to a new page.
 
-import 'package:cair_app_v2/widgets/new_note.dart';
+import 'package:cair_app_v3/widgets/new_note.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,6 +13,8 @@ import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
 import './models/dailynotes.dart';
+
+import 'package:cair_app_v3/ble/bluetooth.dart';
 
 void main() => runApp(MyApp());
 
@@ -208,9 +210,8 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
             alignment: Alignment.centerLeft,
             color: Theme.of(context).primaryColorDark,
             tooltip: 'Settings',
-            onPressed: () {
-              openPage(context);
-            },
+            onPressed: () => Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) => FlutterBlueApp())),
           ),
         ],
       ),

@@ -129,7 +129,8 @@ class _SensorPageState extends State<SensorPage> {
   }
   
   /* 
-    Decodes received data using UTF8 configuration. NOTE: Not used in ble_test
+    Decodes received data using UTF8 configuration. 
+    NOTE: Not used in ble_test
   */
   String _dataParser(List<int> dataFromDevice) {
     return utf8.decode(dataFromDevice);
@@ -178,9 +179,10 @@ class _SensorPageState extends State<SensorPage> {
                         if (snapshot.connectionState ==
                             ConnectionState.active) {
                           // Get the data from received packet and convert to String
-                          var currentValue = (snapshot.data)[0].toString();
+                          var currentValue1 = (snapshot.data)[0].toString();
+                          var currentValue2 = (snapshot.data)[1].toString();
                           // Add data to oscilloscope datapoints
-                          traceDust.add(double.tryParse(currentValue) ?? 0);
+                          traceDust.add(double.tryParse(currentValue1) ?? 0);
 
                           // Display data in the center of screen
                           return Center(
@@ -194,7 +196,7 @@ class _SensorPageState extends State<SensorPage> {
                                     children: <Widget>[
                                       Text('Current value from Espruino',
                                           style: TextStyle(fontSize: 14)),
-                                      Text('${currentValue}',
+                                      Text('${currentValue1}, ${currentValue2}',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 24))

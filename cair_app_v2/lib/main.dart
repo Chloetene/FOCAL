@@ -7,11 +7,17 @@ import 'package:cair_app_v2/widgets/new_note.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_sparkline/flutter_sparkline.dart';
 
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
 import './models/dailynotes.dart';
+
+import 'package:cair_app_v2/ble/bluetooth.dart';
+import 'package:cair_app_v2/ble/sensor_page.dart';
+
+
 
 void main() => runApp(MyApp());
 
@@ -46,18 +52,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: _title,
       theme: ThemeData(
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.green,
           accentColor: Colors.amber,
           fontFamily: 'Quicksand',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
           appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-                    title: TextStyle(
-                  fontFamily: 'OpenSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                )),
+                  title: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           )),
-      home: MyStatelessWidget(),
+      home: CairApp(),
     );
   }
 }
@@ -107,14 +121,19 @@ void openNotesPage(BuildContext context, _userNotes) {
 }
 
 /// This is the stateless widget that the main application instantiates.
-class MyStatelessWidget extends StatefulWidget {
-  MyStatelessWidget({Key key}) : super(key: key);
+class CairApp extends StatefulWidget {
+  CairApp({Key key}) : super(key: key);
 
   @override
-  _MyStatelessWidgetState createState() => _MyStatelessWidgetState();
+  _CairAppState createState() => _CairAppState();
 }
 
-class _MyStatelessWidgetState extends State<MyStatelessWidget> {
+class _CairAppState extends State<CairApp> {
+  bool init = true;
+  
+  DataListStream dlstream = new DataListStream(20);
+
+
   final List<Notes> _userNotes = [
     /*Notes(
       ansone: 'I am good',
@@ -157,12 +176,14 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
       title: 'First Graph',
       amount: 10,
       date: DateTime.now(),
+      data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
     ),
     Graph(
       id: 'g2',
       title: 'Second Graph',
       amount: 8,
       date: DateTime.now(),
+      data: [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0],
     ),
   ];
 
@@ -170,15 +191,28 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
   String firstanswer;
   String secondanswer;
 
+  void _init() {
+      dlstream.set_stream(count_list());
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    if (init) {
+      _init();
+      init = false;
+    }
+
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColorLight,
         title: const Text(
           'FOCAL Homepage',
-          style: TextStyle(fontFamily: 'Quicksand-Bold', color: Colors.purple),
+          style: TextStyle(
+            fontFamily: 'Quicksand-Bold',
+            color: Colors.deepPurple,
+          ),
         ),
         //textTheme: Color(aaaa)
         //backgroundColor: Colors.lightBlue[100],
@@ -232,6 +266,34 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                     child: Row(
                       children: <Widget>[
                         Container(
+                          width: 400.0,
+                          height: 200.0,
+                          child: StreamBuilder<List<int>>(
+                            stream: dlstream.getStream(),
+                            builder: (_, __) {
+                              List<double> data;
+                            
+                              //if (dlstream.isSet() && !dlstream.isRunning())
+                              //  dlstream.run();
+//
+                              if (!dlstream.isRunning())
+                                data = [];
+                              else
+                                data = dlstream.getData(0);
+
+                              return Sparkline(
+                                data: data,
+                                lineGradient: new LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Colors.red, Colors.yellow, Colors.green],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        
+                        Container(
                           margin: EdgeInsets.symmetric(
                             vertical: 10,
                             horizontal: 15,
@@ -243,9 +305,21 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                             ),
                           ),
                           padding: EdgeInsets.all(10),
-                          child: Text(
-                            'Status: ' + gr.id.toString(),
-                            style: Theme.of(context).textTheme.title,
+                          //child: Text(
+                          //  'Status: ' + gr.id.toString(),
+                          //  style: Theme.of(context).textTheme.title,
+                          //),
+                          child: Container(
+                            width: 150.0,
+                            height: 100.0,
+                            child: Sparkline(
+                              data: gr.data,
+                              lineGradient: new LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.red, Colors.yellow, Colors.green],
+                              ),
+                            ),
                           ),
                         ),
                         Column(

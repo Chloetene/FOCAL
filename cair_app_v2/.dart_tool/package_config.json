@@ -56,10 +56,28 @@
       "languageVersion": "2.0"
     },
     {
+      "name": "fixnum",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-0.10.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
+      "name": "fl_chart",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/fl_chart-0.8.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "2.2"
+    },
+    {
+      "name": "flutter_blue",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_blue-0.6.3+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
     },
     {
       "name": "flutter_local_notifications",
@@ -72,6 +90,12 @@
       "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications_platform_interface-1.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.1"
+    },
+    {
+      "name": "flutter_sparkline",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_sparkline-0.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
     },
     {
       "name": "flutter_test",
@@ -104,10 +128,28 @@
       "languageVersion": "1.12"
     },
     {
+      "name": "oscilloscope",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/oscilloscope-0.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
+    },
+    {
       "name": "path",
       "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.6.4",
       "packageUri": "lib/",
       "languageVersion": "2.0"
+    },
+    {
+      "name": "path_drawing",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/path_drawing-0.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "1.19"
+    },
+    {
+      "name": "path_parsing",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/path_parsing-0.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "1.19"
     },
     {
       "name": "pedantic",
@@ -134,8 +176,20 @@
       "languageVersion": "2.1"
     },
     {
+      "name": "protobuf",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/protobuf-1.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
+    },
+    {
       "name": "quiver",
       "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/quiver-2.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
+    },
+    {
+      "name": "rxdart",
+      "rootUri": "file:///Users/chloemalone/Desktop/Files/Development/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/rxdart-0.22.6",
       "packageUri": "lib/",
       "languageVersion": "2.0"
     },
@@ -206,7 +260,7 @@
       "languageVersion": "2.1"
     }
   ],
-  "generated": "2020-02-27T20:28:20.535213Z",
+  "generated": "2020-04-02T15:17:48.918362Z",
   "generator": "pub",
   "generatorVersion": "2.7.0"
 }

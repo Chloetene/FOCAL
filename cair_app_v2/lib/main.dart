@@ -12,6 +12,7 @@ import 'package:flutter_sparkline/flutter_sparkline.dart';
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
+import './widgets/graphwidget.dart';
 import './models/dailynotes.dart';
 
 import 'package:cair_app_v2/ble/bluetooth.dart';
@@ -131,7 +132,7 @@ class CairApp extends StatefulWidget {
 class _CairAppState extends State<CairApp> {
   bool init = true;
   
-  DataListStream dlstream = new DataListStream(20);
+  //DataListStream dlstream = new DataListStream(20);
 
 
   final List<Notes> _userNotes = [
@@ -191,18 +192,20 @@ class _CairAppState extends State<CairApp> {
   String firstanswer;
   String secondanswer;
 
+/*
   void _init() {
       dlstream.set_stream(count_list());
   }
-
+*/
   @override
   Widget build(BuildContext context) {
 
+/*
     if (init) {
       _init();
       init = false;
     }
-
+*/
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -254,7 +257,7 @@ class _CairAppState extends State<CairApp> {
                 color: Theme.of(context).primaryColorDark,
                 child: Container(
                   width: double.infinity,
-                  child: Text('CHART NO. 1'),
+                  child: Text('Overall Stress Level:'),
                 ),
                 margin: EdgeInsets.all(5),
                 elevation: 5,
@@ -268,29 +271,6 @@ class _CairAppState extends State<CairApp> {
                         Container(
                           width: 400.0,
                           height: 200.0,
-                          child: StreamBuilder<List<int>>(
-                            stream: dlstream.getStream(),
-                            builder: (_, __) {
-                              List<double> data;
-                            
-                              //if (dlstream.isSet() && !dlstream.isRunning())
-                              //  dlstream.run();
-//
-                              if (!dlstream.isRunning())
-                                data = [];
-                              else
-                                data = dlstream.getData(0);
-
-                              return Sparkline(
-                                data: data,
-                                lineGradient: new LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [Colors.red, Colors.yellow, Colors.green],
-                                ),
-                              );
-                            },
-                          ),
                         ),
                         
                         Container(
@@ -312,13 +292,12 @@ class _CairAppState extends State<CairApp> {
                           child: Container(
                             width: 150.0,
                             height: 100.0,
-                            child: Sparkline(
-                              data: gr.data,
-                              lineGradient: new LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.red, Colors.yellow, Colors.green],
-                              ),
+                            child: GraphWidget( //need to import graphwidget
+                              name: "TestGraph_one",
+                              width: 300,
+                              height: 100,
+                              //stream:  //bt module
+                              sampleNum: 20,
                             ),
                           ),
                         ),

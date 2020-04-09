@@ -14,7 +14,7 @@ Stream<int> count() async* {
   }
 }
 
-Stream<List<int>> count_list() async* {
+Stream<List<int>> countlist() async* {
   var rng = new Random();
   while (true) {
     await new Future.delayed(new Duration(milliseconds: 500));
@@ -33,12 +33,12 @@ class DataListStream {
 
   DataListStream(this._width);
 
-  void set_stream(Stream<List<int>> stream) {
+  void setstream(Stream<List<int>> stream) {
     _set = true;
     _stream = stream;
   }
   
-  void unset_stream() {
+  void unsetstream() {
     _stream = Stream<List<int>>.empty();
     _set = false;
   }
@@ -64,13 +64,13 @@ class DataListStream {
   }
 
   List<double> getData(int column) {
-    List<double> column_data = [];
+    List<double> columndata = [];
 
     for (var a in _data)
       if (a.length > 0)
-        column_data.add(a[column].toDouble());
+        columndata.add(a[column].toDouble());
     
-    return column_data;
+    return columndata;
   }
 
   Stream<List<int>> getStream() => _stream;
@@ -89,8 +89,8 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
-  final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
+  final String SERVICEUUID = '0000180d-0000-1000-8000-00805f9b34fb';
+  final String CHARACTERISTICUUID = '00002a6e-0000-1000-8000-00805f9b34fb';
   bool isReady;
   Stream<List<int>> stream;
   List<double> traceDust = List();
@@ -105,21 +105,21 @@ class _SensorPageState extends State<SensorPage> {
   /* 
     Connect to the selected device with a 15 second timer before timeout
   */
-  connectToDevice({bool assign_stream = false, DataListStream dlstream}) async {
+  connectToDevice({bool assignstream = false, DataListStream dlstream}) async {
     if (widget.device == null) {
-      _Pop();
+      Pop();
       return;
     }
 
     new Timer(const Duration(seconds: 15), () {
       if (!isReady) {
         disconnectFromDevice();
-        _Pop();
+        Pop();
       }
     });
 
     await widget.device.connect();
-    discoverServices(assign_stream: assign_stream, dlstream: dlstream);
+    discoverServices(assignstream: assignstream, dlstream: dlstream);
   }
 
   /* 
@@ -127,7 +127,7 @@ class _SensorPageState extends State<SensorPage> {
   */
   disconnectFromDevice() {
     if (widget.device == null) {
-      _Pop();
+      Pop();
       return;
     }
 
@@ -137,9 +137,9 @@ class _SensorPageState extends State<SensorPage> {
   /* 
     Asynchrously check for device service and characteristic UUIDs 
   */
-  discoverServices({bool assign_stream = false, DataListStream dlstream}) async {
+  discoverServices({bool assignstream = false, DataListStream dlstream}) async {
     if (widget.device == null) {
-      _Pop();
+      Pop();
       return;
     }
 
@@ -147,11 +147,11 @@ class _SensorPageState extends State<SensorPage> {
     // Iterate through each found service UUIDs of the device
     services.forEach((service) {
       // Check if the wanted service UUID is available
-      if (service.uuid.toString() == SERVICE_UUID) {
+      if (service.uuid.toString() == SERVICEUUID) {
         // Iterate through each found characteristic UUIDs of the device
         service.characteristics.forEach((characteristic) {
           // Check if the wanted characteristic UUID is available
-          if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
+          if (characteristic.uuid.toString() == CHARACTERISTICUUID) {
             // Sets the notify parameter of the bluetooth device to FALSE to indicate
             // most recent sent data was received successfully
             characteristic.setNotifyValue(!characteristic.isNotifying);
@@ -159,8 +159,8 @@ class _SensorPageState extends State<SensorPage> {
             stream = characteristic.value;
 
             // Set data list stream to bluetooth value stream
-            if (assign_stream || true)
-              dlstream.set_stream(count_list());
+            if (assignstream || true)
+              dlstream.setstream(countlist());
             //  dlstream.set_stream(characteristic.value);
 
             setState(() {
@@ -172,7 +172,7 @@ class _SensorPageState extends State<SensorPage> {
     });
 
     if (!isReady) {
-      _Pop();
+      Pop();
     }
   }
 
@@ -204,7 +204,7 @@ class _SensorPageState extends State<SensorPage> {
   /* 
     Display a notification of current situation in the nav bar
   */
-  _Pop() {
+  Pop() {
     Navigator.of(context).pop(true);
   }
   
@@ -212,7 +212,7 @@ class _SensorPageState extends State<SensorPage> {
     Decodes received data using UTF8 configuration. 
     NOTE: Not used in ble_test
   */
-  String _dataParser(List<int> dataFromDevice) {
+  String dataParser(List<int> dataFromDevice) {
     return utf8.decode(dataFromDevice);
   }
 

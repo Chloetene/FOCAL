@@ -18,15 +18,15 @@ class DataListStream {
     if (width != null)
       _width = width;
     if (stream != null)
-      set_stream(stream);
+      setstream(stream);
   }
 
-  void set_stream(Stream<List<int>> stream) {
+  void setstream(Stream<List<int>> stream) {
     _set = true;
     _stream = stream;
   }
   
-  void unset_stream() {
+  void unsetstream() {
     _stream = Stream<List<int>>.empty();
     _set = false;
   }
@@ -52,13 +52,13 @@ class DataListStream {
   }
 
   List<double> getData(int column) {
-    List<double> column_data = [];
+    List<double> columndata = [];
 
     for (var a in _data)
       if (a.length > 0)
-        column_data.add(a[column].toDouble());
+        columndata.add(a[column].toDouble());
     
-    return column_data;
+    return columndata;
   }
 
   Stream<List<int>> getStream() => _stream;
@@ -98,7 +98,7 @@ class _GraphWidgetState extends State<GraphWidget> {
 
   void _initfunc() {
     _dstream = new DataListStream(width: widget.sampleNum);
-    _dstream.set_stream(widget.stream);
+    _dstream.setstream(widget.stream);
     _dstream.run();
   }
 
@@ -162,7 +162,7 @@ class _GraphWidgetState extends State<GraphWidget> {
     );
   }
 }
-
+/*
 /// DEMO ====================================================================================================================================================================
 
 Stream<List<int>> count_list() async* {
@@ -222,4 +222,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
+}*/

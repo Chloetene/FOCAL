@@ -268,10 +268,10 @@ class _CairAppState extends State<CairApp> {
                   return Card(
                     child: Row(
                       children: <Widget>[
-                        Container(
-                          width: 400.0,
-                          height: 200.0,
-                        ),
+                        //C//ontainer(
+                        //  width: 200.0,
+                       //   height: 200.0,
+                       // ),
                         
                         Container(
                           margin: EdgeInsets.symmetric(
@@ -291,11 +291,11 @@ class _CairAppState extends State<CairApp> {
                           //),
                           child: Container(
                             width: 150.0,
-                            height: 100.0,
+                            height: 150.0,
                             child: GraphWidget( //need to import graphwidget
                               name: "TestGraph_one",
                               width: 300,
-                              height: 100,
+                              height: 50,
                               //stream:  //bt module
                               sampleNum: 20,
                             ),

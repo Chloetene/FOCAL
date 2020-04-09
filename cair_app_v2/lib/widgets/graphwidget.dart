@@ -70,11 +70,12 @@ class DataListStream {
 
 ///GraphWidget class definition
 class GraphWidget extends StatefulWidget {
-  GraphWidget({Key key, this.name, this.width, this.height, this.stream, this.sampleNum}) : super(key: key);
+  GraphWidget({Key key, this.name, this.width, this.height, this.color, this.stream, this.sampleNum}) : super(key: key);
 
   final String name;
   final double width;
   final double height;
+  final Color color;
   final int sampleNum;
   final Stream<List<int>> stream;
 
@@ -130,7 +131,7 @@ class _GraphWidgetState extends State<GraphWidget> {
 
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.cyan,
+              color: widget.color,
               width: 3.0,
             ),
             borderRadius: BorderRadius.all(

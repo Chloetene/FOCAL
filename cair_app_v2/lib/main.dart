@@ -192,20 +192,18 @@ class _CairAppState extends State<CairApp> {
   String firstanswer;
   String secondanswer;
 
-/*
   void _init() {
-      dlstream.set_stream(count_list());
+    //...
   }
-*/
+
   @override
   Widget build(BuildContext context) {
 
-/*
     if (init) {
       _init();
       init = false;
     }
-*/
+
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -250,85 +248,38 @@ class _CairAppState extends State<CairApp> {
       ),
       body: SingleChildScrollView(
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Card(
-                color: Theme.of(context).primaryColorDark,
-                child: Container(
-                  width: double.infinity,
-                  child: Text('Overall Stress Level:'),
-                ),
-                margin: EdgeInsets.all(5),
-                elevation: 5,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Card(
+              color: Theme.of(context).primaryColorDark,
+              child: Container(
+                width: double.infinity,
+                child: Text('Overall Stress Level:'),
               ),
-              //UserNotes(),
-              Column(
-                children: graphs.map((gr) {
-                  return Card(
-                    child: Row(
-                      children: <Widget>[
-                        //C//ontainer(
-                        //  width: 200.0,
-                       //   height: 200.0,
-                       // ),
-                        
-                        Container(
-                          margin: EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 15,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.lightBlue[300],
-                              width: 2,
-                            ),
-                          ),
-                          padding: EdgeInsets.all(10),
-                          //child: Text(
-                          //  'Status: ' + gr.id.toString(),
-                          //  style: Theme.of(context).textTheme.title,
-                          //),
-                          child: Container(
-                            width: 150.0,
-                            height: 150.0,
-                            child: GraphWidget( //need to import graphwidget
-                              name: "TestGraph_one",
-                              width: 300,
-                              height: 50,
-                              //stream:  //bt module
-                              sampleNum: 20,
-                            ),
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            /*Text(
-                              gr.title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.lightBlue[300],
-                              ),
-                            ),
-                            Text(
-                              'Last Update: ' +
-                                  DateFormat.yMd().add_jm().format(gr
-                                      .date), //can do .format('yyyy-MM-dd'), etc.
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.blueGrey,
-                              ),
-                            ),*/
-                          ],
-                        )
-                      ],
+              margin: EdgeInsets.all(5),
+              elevation: 5,
+            ),
+            //UserNotes(),
+            Column(
+              children: graphs.map((gr) {
+                return Container(
+                  width: 400,
+                  child: Card(
+                    child: GraphWidget( //need to import graphwidget
+                      name: "Test Graph 1",
+                      width: 300,
+                      height: 150,
+                      color: Theme.of(context).primaryColorDark,
+                      //stream: dlstream,
+                      sampleNum: 20,
                     ),
-                  );
-                }).toList(),
-              ),
-            ]),
+                  ),
+                );
+              }).toList(),
+            ),
+          ]
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

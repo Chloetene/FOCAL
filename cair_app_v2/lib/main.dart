@@ -304,7 +304,7 @@ class _CairAppState extends State<CairApp> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
+                            /*Text(
                               gr.title,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -320,7 +320,7 @@ class _CairAppState extends State<CairApp> {
                                 fontSize: 10,
                                 color: Colors.blueGrey,
                               ),
-                            ),
+                            ),*/
                           ],
                         )
                       ],

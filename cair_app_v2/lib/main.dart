@@ -19,6 +19,17 @@ import 'package:cair_app_v2/ble/sensor_page.dart';
 import './widgets/graphwidget.dart';
 import './util/dataliststream.dart';
 
+import 'dart:async';
+import 'dart:math';
+
+Stream<List<int>> count_list() async* {
+  var rng = new Random();
+  while (true) {
+    await new Future.delayed(new Duration(milliseconds: 500));
+    yield [rng.nextInt(20), rng.nextInt(20)];
+  }
+}
+
 void main() => runApp(MyApp());
 
 /// Settings for initializing the plugin for each platform
@@ -189,7 +200,8 @@ class _CairAppState extends State<CairApp> {
   String secondanswer;
 
   void _init() {
-    //...
+    dlstream.set_stream(count_list());
+    dlstream.run();
   }
 
   @override

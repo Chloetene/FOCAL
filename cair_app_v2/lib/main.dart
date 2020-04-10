@@ -235,9 +235,7 @@ class _CairAppState extends State<CairApp> {
             alignment: Alignment.centerLeft,
             color: Theme.of(context).primaryColorDark,
             tooltip: 'Settings',
-            onPressed: () {
-              openPage(context);
-            },
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => FlutterBlueApp(dlstream: dlstream))),
           ),
         ],
       ),

@@ -8,8 +8,9 @@ import 'package:oscilloscope/oscilloscope.dart';
 import './../util/dataliststream.dart';
 
 class SensorPage extends StatefulWidget {
-  const SensorPage({Key key, this.device}) : super(key: key);
+  const SensorPage({Key key, this.device, DataListStream this.dlstream}) : super(key: key);
   final BluetoothDevice device;
+  final DataListStream dlstream;
 
   @override
   _SensorPageState createState() => _SensorPageState();
@@ -26,7 +27,7 @@ class _SensorPageState extends State<SensorPage> {
   void initState() {
     super.initState();
     isReady = false;
-    connectToDevice();
+    connectToDevice(assignstream: true, dlstream: widget.dlstream);
   }
 
   /* 

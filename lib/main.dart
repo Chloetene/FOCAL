@@ -10,7 +10,6 @@ void main() {
 
   if (bt_init) {
     btapp = new FlutterBlueApp();
-    bt_init = false;
   }
   runApp(btapp);
 }

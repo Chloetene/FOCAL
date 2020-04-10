@@ -116,11 +116,10 @@ class FindDevicesScreen extends StatelessWidget {
                       .map(
                         (r) => ScanResultTile(
                           result: r,
-                          onTap: () => Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) {
+                          onTap: () {
                             r.device.connect();
-                            return SensorPage(device: r.device);
-                          })),
+                            SensorPage spage = new SensorPage(device: r.device, dlstream: dlstream);
+                          },
                         ),
                       )
                       .toList(),
@@ -206,14 +205,14 @@ class DeviceScreen extends StatelessWidget {
                   onPressed = () => device.disconnect();
                   text = 'DISCONNECT';
                   break;
-                case BluetoothDeviceState.disconnected:
+                default:// BluetoothDeviceState.disconnected:
                   onPressed = () => device.connect();
                   text = 'CONNECT';
                   break;
-                default:
-                  onPressed = null;
-                  text = snapshot.data.toString().substring(21).toUpperCase();
-                  break;
+                //default:
+                //  onPressed = null;
+                //  text = snapshot.data.toString().substring(21).toUpperCase();
+                //  break;
               }
               return FlatButton(
                   onPressed: onPressed,

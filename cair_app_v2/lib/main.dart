@@ -130,9 +130,10 @@ class CairApp extends StatefulWidget {
 
 class _CairAppState extends State<CairApp> {
   bool init = true;
-  
-  DataListStream dlstream = new DataListStream(width: 20);
+  bool bt_init = true;
 
+  DataListStream dlstream = new DataListStream(width: 20);
+  FlutterBlueApp btapp;
 
   final List<Notes> _userNotes = [
     /*Notes(
@@ -235,7 +236,13 @@ class _CairAppState extends State<CairApp> {
             alignment: Alignment.centerLeft,
             color: Theme.of(context).primaryColorDark,
             tooltip: 'Settings',
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => FlutterBlueApp(dlstream: dlstream))),
+            onPressed: () {
+              if (bt_init) {
+                btapp = new FlutterBlueApp(dlstream: dlstream);
+                bt_init = false;
+              }
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => btapp));
+            },
           ),
         ],
       ),

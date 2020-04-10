@@ -181,10 +181,10 @@ class _SensorPageState extends State<SensorPage> {
                           // Get the data from received packet and convert to String
                           var currentValue1 = (snapshot.data)[0].toString();  // n_spo2_int
                           var currentValue2 = (snapshot.data)[1].toString();  // n_spo2_dec
-                          var currentValue3 = (snapshot.data)[0].toString();  // n_heart_rate
-                          var currentValue4 = (snapshot.data)[1].toString();  // temperature
-                          var currentValue5 = (snapshot.data)[0].toString();  // pressure
-                          var currentValue6 = (snapshot.data)[1].toString();  // batteryLife
+                          var currentValue3 = (snapshot.data)[2].toString();  // n_heart_rate
+                          var currentValue4 = (snapshot.data)[3].toString();  // temperature
+                          var currentValue5 = (snapshot.data)[4].toString();  // pressure
+                          var currentValue6 = (snapshot.data)[5].toString();  // batteryLife
                           // Add data to oscilloscope datapoints
                           traceDust.add(double.tryParse(currentValue3) ?? 0);
 

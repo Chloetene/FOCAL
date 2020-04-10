@@ -5,7 +5,14 @@ import 'package:ble_test/widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 void main() {
-  runApp(FlutterBlueApp());
+  bool bt_init = true;
+  FlutterBlueApp btapp;
+
+  if (bt_init) {
+    btapp = new FlutterBlueApp();
+    bt_init = false;
+  }
+  runApp(btapp);
 }
 
 class FlutterBlueApp extends StatelessWidget {

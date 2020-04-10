@@ -186,7 +186,7 @@ class _SensorPageState extends State<SensorPage> {
                           var currentValue5 = (snapshot.data)[0].toString();  // pressure
                           var currentValue6 = (snapshot.data)[1].toString();  // batteryLife
                           // Add data to oscilloscope datapoints
-                          traceDust.add(double.tryParse(currentValue2) ?? 0);
+                          traceDust.add(double.tryParse(currentValue3) ?? 0);
 
                           // Display data in the center of screen
                           return Center(

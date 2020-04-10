@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cair_app_v2/ble/sensor_page.dart';
 import 'package:cair_app_v2/ble/widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import './../util/dataliststream.dart';
 
 class FlutterBlueApp extends StatelessWidget {
   const FlutterBlueApp({Key key, this.dlstream}) : super(key: key);

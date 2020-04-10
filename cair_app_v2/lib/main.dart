@@ -12,13 +12,12 @@ import 'package:flutter_sparkline/flutter_sparkline.dart';
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
-import './widgets/graphwidget.dart';
 import './models/dailynotes.dart';
 
 import 'package:cair_app_v2/ble/bluetooth.dart';
 import 'package:cair_app_v2/ble/sensor_page.dart';
-
-
+import './widgets/graphwidget.dart';
+import './util/dataliststream.dart';
 
 void main() => runApp(MyApp());
 
@@ -132,7 +131,7 @@ class CairApp extends StatefulWidget {
 class _CairAppState extends State<CairApp> {
   bool init = true;
   
-  //DataListStream dlstream = new DataListStream(20);
+  DataListStream dlstream = new DataListStream(width: 20);
 
 
   final List<Notes> _userNotes = [
@@ -173,18 +172,14 @@ class _CairAppState extends State<CairApp> {
 
   final List<Graph> graphs = [
     Graph(
-      id: 'g1',
-      title: 'First Graph',
-      amount: 10,
+      title: 'Graph 1',
       date: DateTime.now(),
-      data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+      column: 0,
     ),
     Graph(
-      id: 'g2',
-      title: 'Second Graph',
-      amount: 8,
+      title: 'Graph 2',
       date: DateTime.now(),
-      data: [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0],
+      column: 1,
     ),
   ];
 
@@ -267,12 +262,12 @@ class _CairAppState extends State<CairApp> {
                   width: 400,
                   child: Card(
                     child: GraphWidget( //need to import graphwidget
-                      name: "Test Graph 1",
+                      name: gr.title,
                       width: 300,
                       height: 150,
                       color: Theme.of(context).primaryColorDark,
-                      //stream: dlstream,
-                      sampleNum: 20,
+                      stream: dlstream,
+                      column: gr.column,
                     ),
                   ),
                 );

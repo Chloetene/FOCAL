@@ -3,81 +3,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
+import './../util/dataliststream.dart';
 //import 'package:charts_flutter/flutter.dart' as charts;
-
-/// Wrapper for stream pushing into list (not generic)
-class DataListStream {
-  Stream<List<int>> _stream;
-  List<List<int>> _data = [];
-  int _width = 1;
-  int _c = 0;
-  bool _run = false;
-  bool _set = false;
-
-  DataListStream({int width, Stream<List<int>> stream}) {
-    if (width != null)
-      _width = width;
-    if (stream != null)
-      setstream(stream);
-  }
-
-  void setstream(Stream<List<int>> stream) {
-    _set = true;
-    _stream = stream;
-  }
-  
-  void unsetstream() {
-    _stream = Stream<List<int>>.empty();
-    _set = false;
-  }
-
-  void run() async {
-    if (!_set)
-      return;
-    _run = true;
-
-    await for (var a in _stream) {
-      if (!_run)
-        break;
-      _c++;
-      _data.add(a);
-
-      if (_data.length > _width)
-        _data.removeAt(0);
-    }
-  }
-
-  void stop() {
-    _run = false;
-  }
-
-  List<double> getData(int column) {
-    List<double> columndata = [];
-
-    for (var a in _data)
-      if (a.length > 0)
-        columndata.add(a[column].toDouble());
-    
-    return columndata;
-  }
-
-  Stream<List<int>> getStream() => _stream;
-  int getC() => _c;
-  int getWidth() => _width;
-  bool isSet() => _set;
-  bool isRunning() => _run;
-}
 
 ///GraphWidget class definition
 class GraphWidget extends StatefulWidget {
-  GraphWidget({Key key, this.name, this.width, this.height, this.color, this.stream, this.sampleNum}) : super(key: key);
+  GraphWidget({Key key, this.name, this.width, this.height, this.color, this.stream, this.column}) : super(key: key);
 
   final String name;
   final double width;
   final double height;
   final Color color;
-  final int sampleNum;
-  final Stream<List<int>> stream;
+  final DataListStream stream;
+  final int column;
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
@@ -92,14 +30,13 @@ class _GraphWidgetState extends State<GraphWidget> {
   void _update() {
     setState(
       () {
-        _data = _dstream.getData(0);
+        _data = _dstream.getData(widget.column);
       }
     );
   }
 
   void _initfunc() {
-    _dstream = new DataListStream(width: widget.sampleNum);
-    _dstream.setstream(widget.stream);
+    _dstream = widget.stream;
     _dstream.run();
   }
 

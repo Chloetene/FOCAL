@@ -5,80 +5,7 @@ import 'dart:convert' show utf8;
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:oscilloscope/oscilloscope.dart';
-
-Stream<int> count() async* {
-  var rng = new Random();
-  while (true) {
-    await new Future.delayed(new Duration(milliseconds: 500));
-    yield rng.nextInt(20);
-  }
-}
-
-Stream<List<int>> countlist() async* {
-  var rng = new Random();
-  while (true) {
-    await new Future.delayed(new Duration(milliseconds: 500));
-    yield [rng.nextInt(20), rng.nextInt(20)];
-  }
-}
-
-/// Wrapper for stream pushing into list (not generic)
-class DataListStream {
-  Stream<List<int>> _stream;
-  List<List<int>> _data = [];
-  int _width = 0;
-  int _c = 0;
-  bool _run = false;
-  bool _set = false;
-
-  DataListStream(this._width);
-
-  void setstream(Stream<List<int>> stream) {
-    _set = true;
-    _stream = stream;
-  }
-  
-  void unsetstream() {
-    _stream = Stream<List<int>>.empty();
-    _set = false;
-  }
-
-  void run() async {
-    if (!_set)
-      return;
-    _run = true;
-
-    await for (var a in _stream) {
-      if (!_run)
-        break;
-      _c++;
-      _data.add(a);
-
-      if (_data.length > _width)
-        _data.removeAt(0);
-    }
-  }
-
-  void stop() {
-    _run = false;
-  }
-
-  List<double> getData(int column) {
-    List<double> columndata = [];
-
-    for (var a in _data)
-      if (a.length > 0)
-        columndata.add(a[column].toDouble());
-    
-    return columndata;
-  }
-
-  Stream<List<int>> getStream() => _stream;
-  int getC() => _c;
-  int getWidth() => _width;
-  bool isSet() => _set;
-  bool isRunning() => _run;
-}
+import './../util/dataliststream.dart';
 
 class SensorPage extends StatefulWidget {
   const SensorPage({Key key, this.device}) : super(key: key);
@@ -158,10 +85,8 @@ class _SensorPageState extends State<SensorPage> {
             // Read the value inside the characteristic UUID
             stream = characteristic.value;
 
-            // Set data list stream to bluetooth value stream
-            if (assignstream || true)
-              dlstream.setstream(countlist());
-            //  dlstream.set_stream(characteristic.value);
+            if (assignstream)
+              dlstream.set_stream(characteristic.value);
 
             setState(() {
               isReady = true;

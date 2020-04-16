@@ -184,15 +184,68 @@ class _CairAppState extends State<CairApp> {
 
   final List<Graph> graphs = [
     Graph(
-      title: 'Graph 1',
+      title: 'Heart Rate (bpm)',
       date: DateTime.now(),
       column: 0,
     ),
     Graph(
-      title: 'Graph 2',
+      title: 'SpO2 (%)',
       date: DateTime.now(),
       column: 1,
     ),
+    Graph(
+      title: 'Temperature (°F)',
+      date: DateTime.now(),
+      column: 2,
+    ),
+    Graph(
+      title: 'Pressure (N)',
+      date: DateTime.now(),
+      column: 3,
+    ),
+  ];
+
+  final dataSets = [
+    [
+      new Pair(0, 71),
+      new Pair(10, 62),
+      new Pair(20, 65),
+      new Pair(30, 72),
+      new Pair(40, 63),
+      new Pair(50, 65),
+      new Pair(60, 67),
+      new Pair(70, 65),
+    ],
+    [
+      new Pair(0, 98),
+      new Pair(10, 93),
+      new Pair(20, 97),
+      new Pair(30, 90),
+      new Pair(40, 97),
+      new Pair(50, 98),
+      new Pair(60, 94),
+      new Pair(70, 90),
+    ],
+    [
+      new Pair(0, 82),
+      new Pair(10, 82),
+      new Pair(20, 78),
+      new Pair(30, 84),
+      new Pair(40, 83),
+      new Pair(50, 84),
+      new Pair(60, 83),
+      new Pair(70, 81),
+    ],
+    [
+      new Pair(0, 12),
+      new Pair(10, 18),
+      new Pair(20, 11),
+      new Pair(30, 9),
+      new Pair(40, 11),
+      new Pair(50, 6),
+      new Pair(60, 14),
+      new Pair(70, 9),
+    ],
   ];
 
   String titleInput;
@@ -285,6 +338,8 @@ class _CairAppState extends State<CairApp> {
                       color: Theme.of(context).primaryColorDark,
                       stream: dlstream,
                       column: gr.column,
+                      use_static_data: true,
+                      staticData: dataSets[gr.column],
                     ),
                   ),
                 );

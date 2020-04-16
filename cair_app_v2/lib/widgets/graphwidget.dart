@@ -3,30 +3,39 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import './../util/dataliststream.dart';
-//import 'package:charts_flutter/flutter.dart' as charts;
 
-///GraphWidget class definition
+/// GraphWidget class definition
 class GraphWidget extends StatefulWidget {
-  GraphWidget({Key key, this.name, this.width, this.height, this.color, this.stream, this.column}) : super(key: key);
+  GraphWidget({Key key, this.name, this.width, this.height, this.color, this.stream, this.column, this.use_static_data, this.staticData}) : super(key: key);
 
   final String name;
   final double width;
   final double height;
   final Color color;
-  final DataListStream stream;
   final int column;
+  final DataListStream stream;
+  final bool use_static_data;
+  final List<Pair> staticData;
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
 }
 
-///GraphWidgetState class definition
+/// Sample linear data type.
+class Pair {
+  final int x;
+  final int y;
+  Pair(this.x, this.y);
+}
+
+/// GraphWidgetState class definition
 class _GraphWidgetState extends State<GraphWidget> {
   bool _init = true;
   List<double> _data = [];
   DataListStream _dstream;
-
+  
   void _update() {
     setState(
       () {
@@ -34,19 +43,41 @@ class _GraphWidgetState extends State<GraphWidget> {
       }
     );
   }
-
+  
   void _initfunc() {
     _dstream = widget.stream;
     _dstream.run();
   }
-
+  
   @override
   Widget build(BuildContext context) {
     if (_init) {
       _initfunc();
       _init = false;
     }
-    
+
+    final data1 = widget.staticData;
+
+    final series_list = [
+      charts.Series<Pair, int>(
+        id: 'Data',
+        colorFn: (Pair pair, _) {
+          return charts.ColorUtil.fromDartColor(
+            Color(0xFF0096FF)
+          );
+        },
+        areaColorFn: (Pair pair, _) {
+          //return charts.MaterialPalette.blue.shadeDefault.lighter;
+          return charts.ColorUtil.fromDartColor(
+            Color(0xCC96C8FF)
+          );
+        },
+        domainFn: (Pair pair, _) => pair.x,
+        measureFn: (Pair pair, _) => pair.y,
+        data: data1,
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -59,32 +90,48 @@ class _GraphWidgetState extends State<GraphWidget> {
             color: Colors.grey[700],
           ),
         ),
-
-        //Spacer(),
-
+        
         Container(
           width: widget.width,
           height: widget.height,
+          
+          child: charts.LineChart(
+            series_list,
 
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: widget.color,
-              width: 3.0,
+            defaultRenderer: new charts.LineRendererConfig(
+              includeArea: true,
+              stacked: true,
             ),
-            borderRadius: BorderRadius.all(
-              Radius.circular(5.0),
+            
+            domainAxis: new charts.NumericAxisSpec(
+              //labelStyle: new charts.TextStyleSpec(
+              //  fontSize: 8,
+              //  color: charts.MaterialPalette.black,
+              //),
+            ),
+            primaryMeasureAxis: new charts.NumericAxisSpec(
+              renderSpec: new charts.GridlineRendererSpec(
+                labelStyle: new charts.TextStyleSpec(
+                  fontSize: 12,
+                  color: charts.MaterialPalette.black,
+                ),
+                lineStyle: new charts.LineStyleSpec(
+                  color: charts.MaterialPalette.black,
+                ),
+                labelAnchor: charts.TickLabelAnchor.after,
+                labelJustification: charts.TickLabelJustification.outside,
+              ),
             ),
           ),
 
-          child: Sparkline(
-            data: _data,
-            lineGradient: new LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.red, Colors.yellow, Colors.green],
-            ),
-          ),
+        ),
 
+        Text(
+          "Time (s)",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[700],
+          ),
         ),
 
         FlatButton(
@@ -100,64 +147,3 @@ class _GraphWidgetState extends State<GraphWidget> {
     );
   }
 }
-/*
-/// DEMO ====================================================================================================================================================================
-
-Stream<List<int>> count_list() async* {
-  var rng = new Random();
-  while (true) {
-    await new Future.delayed(new Duration(milliseconds: 500));
-    yield [rng.nextInt(20), rng.nextInt(20)];
-  }
-}
-
-void main() => runApp(BaseApp());
-
-class BaseApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Test',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomePage(title: 'Test'),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) { 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            
-            GraphWidget(
-              name: "Test Graph",
-              width: 300.0,
-              height: 100.0,
-              stream: count_list(),
-              sampleNum: 10,
-            ),
-
-          ],
-        ),
-      ),
-    );
-  }
-}*/

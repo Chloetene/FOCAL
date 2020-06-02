@@ -34,12 +34,14 @@ class Pair {
 class _GraphWidgetState extends State<GraphWidget> {
   bool _init = true;
   List<double> _data = [];
+  List<DateTime> _time = [];
   DataListStream _dstream;
   
   void _update() {
     setState(
       () {
         _data = _dstream.getData(widget.column);
+        _time = _dstream.getTimes();
       }
     );
   }
@@ -56,7 +58,21 @@ class _GraphWidgetState extends State<GraphWidget> {
       _init = false;
     }
 
-    final data1 = widget.staticData;
+    //create pair data
+    List<Pair> data_pairs = [];
+    if (widget.use_static_data) {
+      data_pairs = widget.staticData;
+    } else {
+      for (var i = 0; i < _data.length; i++) {
+        data_pairs.add(
+          new Pair(
+            (_time[i].hour * 10 * 10 * 10 * 10) + (_time[i].minute * 10 * 10) + _time[i].second,
+            _data[i].toInt()
+          )
+        );
+        //print("${widget.column}: (${data_pairs.last.x}, ${data_pairs.last.y})\n");
+      }
+    }
 
     final series_list = [
       charts.Series<Pair, int>(
@@ -74,7 +90,7 @@ class _GraphWidgetState extends State<GraphWidget> {
         },
         domainFn: (Pair pair, _) => pair.x,
         measureFn: (Pair pair, _) => pair.y,
-        data: data1,
+        data: data_pairs,
       ),
     ];
 

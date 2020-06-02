@@ -25,8 +25,8 @@ import 'dart:math';
 Stream<List<int>> count_list() async* {
   var rng = new Random();
   while (true) {
-    await new Future.delayed(new Duration(milliseconds: 500));
-    yield [rng.nextInt(20), rng.nextInt(20)];
+    await new Future.delayed(new Duration(milliseconds: 1500));
+    yield [rng.nextInt(20), rng.nextInt(20), rng.nextInt(20), rng.nextInt(20)];
   }
 }
 
@@ -143,7 +143,7 @@ class _CairAppState extends State<CairApp> {
   bool init = true;
   bool bt_init = true;
 
-  DataListStream dlstream = new DataListStream(width: 20);
+  DataListStream dlstream = new DataListStream(width: 86400);
   FlutterBlueApp btapp;
 
   final List<Notes> _userNotes = [
@@ -408,7 +408,7 @@ class _CairAppState extends State<CairApp> {
                       color: Theme.of(context).primaryColorDark,
                       stream: dlstream,
                       column: gr.column,
-                      use_static_data: true,
+                      use_static_data: false,
                       staticData: dataSets[gr.column],
                     ),
                   ),

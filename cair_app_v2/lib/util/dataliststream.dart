@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:async';
 import 'dart:math';
 
@@ -5,8 +6,10 @@ import 'dart:math';
 class DataListStream {
   Stream<List<int>> _stream;
   List<List<int>> _data = [];
+  List<DateTime> _time = [];
   int _width = 1;
   int _c = 0;
+  int _len = 0;
   bool _run = false;
   bool _set = false;
 
@@ -18,13 +21,21 @@ class DataListStream {
   }
 
   void set_stream(Stream<List<int>> stream) {
-    _set = true;
     _stream = stream;
+    _set = true;
   }
   
   void unset_stream() {
     _stream = Stream<List<int>>.empty();
     _set = false;
+  }
+
+  void set_width(int width) {
+    _width = width;
+    while (_data.length > _width)
+      _data.removeAt(0);
+    while (_time.length > _width)
+      _data.removeAt(0);
   }
 
   void run() async {
@@ -37,9 +48,12 @@ class DataListStream {
         break;
       _c++;
       _data.add(a);
+      _time.add(DateTime.now());
 
-      if (_data.length > _width)
+      while (_data.length > _width)
         _data.removeAt(0);
+      while (_time.length > _width)
+        _time.removeAt(0);
     }
   }
 
@@ -57,9 +71,11 @@ class DataListStream {
     return column_data;
   }
 
+  List<DateTime> getTimes() => _time;
   Stream<List<int>> getStream() => _stream;
   int getC() => _c;
   int getWidth() => _width;
+  int getDataLength() => _data.length;
   bool isSet() => _set;
   bool isRunning() => _run;
 }

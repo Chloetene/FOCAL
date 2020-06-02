@@ -147,16 +147,79 @@ class _CairAppState extends State<CairApp> {
   FlutterBlueApp btapp;
 
   final List<Notes> _userNotes = [
-    /*Notes(
-      ansone: 'I am good',
+    /*
+    Notes(
+      ansone: '10',
       anstwo: 'I am fine',
       ansthree: 'I am great',
       date: DateTime.now(),
-    ),*/
+    ),
+    Notes(
+      ansone: '9',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '5',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '6',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '3',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+        Notes(
+      ansone: '5',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '6',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '3',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+        Notes(
+      ansone: '5',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '6',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    Notes(
+      ansone: '3',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    */
   ];
 
   void _addNewNote(String ntone, String nttwo, String ntthree) {
     final newNt = Notes(
+      id: DateTime.now().toString(),
       ansone: ntone,
       anstwo: nttwo,
       ansthree: ntthree,
@@ -168,7 +231,13 @@ class _CairAppState extends State<CairApp> {
     });
     Navigator.of(context).pop(); //close + button after entering note
   }
-
+/*
+  void deleteNote(String id) {
+    setState(() {
+      _userNotes.removeWhere((nt) => nt.id == id);
+    });
+  }
+*/
   void _startAddNewNote(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
@@ -284,6 +353,7 @@ class _CairAppState extends State<CairApp> {
           color: Theme.of(context).primaryColorDark,
           onPressed: () {
             openNotesPage(context, _userNotes);
+            //openNotesPage(context, _userNotes, deleteNote);
           },
         ),
         centerTitle: true,
@@ -348,6 +418,7 @@ class _CairAppState extends State<CairApp> {
           ]
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => _startAddNewNote(context),

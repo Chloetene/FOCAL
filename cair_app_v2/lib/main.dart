@@ -109,20 +109,20 @@ void openPage(BuildContext context) {
   ));
 }
 
-void openNotesPage(BuildContext context, _userNotes) {
+void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Notes', style: TextStyle(color: Colors.brown)),
-          backgroundColor: Colors.brown[100],
+          title: const Text('Notes', style: TextStyle(color: Colors.purple)),
+          backgroundColor: Colors.purple[100],
         ),
         body: SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                NotesList(_userNotes),
+                NotesList(_userNotes, _deleteNote),
                 //NotesList(x),
               ]),
         ),
@@ -231,13 +231,13 @@ class _CairAppState extends State<CairApp> {
     });
     Navigator.of(context).pop(); //close + button after entering note
   }
-/*
-  void deleteNote(String id) {
+
+  void _deleteNote(String id) {
     setState(() {
       _userNotes.removeWhere((nt) => nt.id == id);
     });
   }
-*/
+
   void _startAddNewNote(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
@@ -328,7 +328,6 @@ class _CairAppState extends State<CairApp> {
 
   @override
   Widget build(BuildContext context) {
-
     if (init) {
       _init();
       init = false;
@@ -352,8 +351,8 @@ class _CairAppState extends State<CairApp> {
           tooltip: 'Show notes',
           color: Theme.of(context).primaryColorDark,
           onPressed: () {
-            openNotesPage(context, _userNotes);
-            //openNotesPage(context, _userNotes, deleteNote);
+            //openNotesPage(context, _userNotes);
+            openNotesPage(context, _userNotes, _deleteNote);
           },
         ),
         centerTitle: true,
@@ -376,47 +375,48 @@ class _CairAppState extends State<CairApp> {
                 btapp = new FlutterBlueApp(dlstream: dlstream);
                 bt_init = false;
               }
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => btapp));
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => btapp));
             },
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Card(
-              color: Theme.of(context).primaryColorDark,
-              child: Container(
-                width: double.infinity,
-                child: Text('Overall Stress Level:'),
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Card(
+                color: Theme.of(context).primaryColorDark,
+                child: Container(
+                  width: double.infinity,
+                  child: Text('Overall Stress Level:'),
+                ),
+                margin: EdgeInsets.all(5),
+                elevation: 5,
               ),
-              margin: EdgeInsets.all(5),
-              elevation: 5,
-            ),
-            //UserNotes(),
-            Column(
-              children: graphs.map((gr) {
-                return Container(
-                  width: 400,
-                  child: Card(
-                    child: GraphWidget( //need to import graphwidget
-                      name: gr.title,
-                      width: 300,
-                      height: 150,
-                      color: Theme.of(context).primaryColorDark,
-                      stream: dlstream,
-                      column: gr.column,
-                      use_static_data: false,
-                      staticData: dataSets[gr.column],
+              //UserNotes(),
+              Column(
+                children: graphs.map((gr) {
+                  return Container(
+                    width: 400,
+                    child: Card(
+                      child: GraphWidget(
+                        //need to import graphwidget
+                        name: gr.title,
+                        width: 300,
+                        height: 150,
+                        color: Theme.of(context).primaryColorDark,
+                        stream: dlstream,
+                        column: gr.column,
+                        use_static_data: false,
+                        staticData: dataSets[gr.column],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ]
-        ),
+                  );
+                }).toList(),
+              ),
+            ]),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(

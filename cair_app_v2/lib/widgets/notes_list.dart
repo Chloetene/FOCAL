@@ -7,9 +7,9 @@ import '../models/dailynotes.dart';
 
 class NotesList extends StatelessWidget {
   final List<Notes> notes;
-  //final Function deleteNote;
-  NotesList(this.notes);
-  //NotesList(this.notes, this.deleteNote);
+  final Function deleteNote;
+  //NotesList(this.notes);
+  NotesList(this.notes, this.deleteNote);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class NotesList extends StatelessWidget {
     }
 
     return Container(
-      height: 500,
+      height: MediaQuery.of(context).size.height * 0.8,
       child: notes.isEmpty
           ? Column(
               children: <Widget>[
@@ -102,8 +102,8 @@ class NotesList extends StatelessWidget {
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
                       color: Theme.of(context).errorColor,
-                      onPressed: () {},
-                      //onPressed: deleteNote,
+                      //onPressed: () {},
+                      onPressed: () => deleteNote(notes[index].id),
                     ),
                   ),
                 );

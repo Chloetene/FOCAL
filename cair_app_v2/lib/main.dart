@@ -12,6 +12,7 @@ import 'package:flutter_sparkline/flutter_sparkline.dart';
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
+import './widgets/overall.dart';
 import './models/dailynotes.dart';
 
 import 'package:cair_app_v2/ble/bluetooth.dart';
@@ -149,67 +150,15 @@ class _CairAppState extends State<CairApp> {
   final List<Notes> _userNotes = [
     /*
     Notes(
+      id: DateTime.now(),
       ansone: '10',
       anstwo: 'I am fine',
       ansthree: 'I am great',
       date: DateTime.now(),
     ),
     Notes(
-      ansone: '9',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '5',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
+      id: DateTime.now(),
       ansone: '6',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '3',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-        Notes(
-      ansone: '5',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '6',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '3',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-        Notes(
-      ansone: '5',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '6',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      ansone: '3',
       anstwo: 'I am fine',
       ansthree: 'I am great',
       date: DateTime.now(),
@@ -332,69 +281,76 @@ class _CairAppState extends State<CairApp> {
       _init();
       init = false;
     }
+    final appBar = AppBar(
+      backgroundColor: Theme.of(context).primaryColorLight,
+      title: const Text(
+        'FOCAL Homepage',
+        style: TextStyle(
+          fontFamily: 'Quicksand-Bold',
+          color: Colors.deepPurple,
+        ),
+      ),
+      //textTheme: Color(aaaa)
+      //backgroundColor: Colors.lightBlue[100],
+      leading: IconButton(
+        icon: const Icon(Icons.note),
+        tooltip: 'Show notes',
+        color: Theme.of(context).primaryColorDark,
+        onPressed: () {
+          //openNotesPage(context, _userNotes);
+          openNotesPage(context, _userNotes, _deleteNote);
+        },
+      ),
+      centerTitle: true,
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.battery_full),
+          tooltip: 'Show Snackbar',
+          color: Colors.green,
+          onPressed: () {
+            scaffoldKey.currentState.showSnackBar(snackBar);
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          alignment: Alignment.centerLeft,
+          color: Theme.of(context).primaryColorDark,
+          tooltip: 'Settings',
+          onPressed: () {
+            if (bt_init) {
+              btapp = new FlutterBlueApp(dlstream: dlstream);
+              bt_init = false;
+            }
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => btapp));
+          },
+        ),
+      ],
+    );
 
     return Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColorLight,
-        title: const Text(
-          'FOCAL Homepage',
-          style: TextStyle(
-            fontFamily: 'Quicksand-Bold',
-            color: Colors.deepPurple,
-          ),
-        ),
-        //textTheme: Color(aaaa)
-        //backgroundColor: Colors.lightBlue[100],
-        leading: IconButton(
-          icon: const Icon(Icons.note),
-          tooltip: 'Show notes',
-          color: Theme.of(context).primaryColorDark,
-          onPressed: () {
-            //openNotesPage(context, _userNotes);
-            openNotesPage(context, _userNotes, _deleteNote);
-          },
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.battery_full),
-            tooltip: 'Show Snackbar',
-            color: Colors.green,
-            onPressed: () {
-              scaffoldKey.currentState.showSnackBar(snackBar);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            alignment: Alignment.centerLeft,
-            color: Theme.of(context).primaryColorDark,
-            tooltip: 'Settings',
-            onPressed: () {
-              if (bt_init) {
-                btapp = new FlutterBlueApp(dlstream: dlstream);
-                bt_init = false;
-              }
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => btapp));
-            },
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              Container(
+                  height: (MediaQuery.of(context).size.height -
+                          appBar.preferredSize.height) *
+                      0.2,
+                  child: Overall()),
+              /*
               Card(
                 color: Theme.of(context).primaryColorDark,
                 child: Container(
                   width: double.infinity,
                   child: Text('Overall Stress Level:'),
                 ),
-                margin: EdgeInsets.all(5),
+                margin: EdgeInsets.all(15),
                 elevation: 5,
-              ),
+              ),*/
               //UserNotes(),
               Column(
                 children: graphs.map((gr) {

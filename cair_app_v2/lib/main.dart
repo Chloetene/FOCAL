@@ -95,6 +95,9 @@ final SnackBar snackBar =
 void openPage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
+      /*final settingsappBar = AppBar(
+          title: const Text('Settings'),
+        ),*/
       return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -338,7 +341,7 @@ class _CairAppState extends State<CairApp> {
             children: <Widget>[
               Container(
                   height: (MediaQuery.of(context).size.height -
-                          appBar.preferredSize.height) *
+                          appBar.preferredSize.height - MediaQuery.of(context).padding.top) *
                       0.2,
                   child: Overall()),
               /*

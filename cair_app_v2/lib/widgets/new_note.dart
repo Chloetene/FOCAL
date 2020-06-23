@@ -5,8 +5,6 @@ class NewNote extends StatefulWidget {
 
   NewNote(this.addNt);
 
- 
-
   @override
   _NewNoteState createState() => _NewNoteState();
 }
@@ -17,19 +15,6 @@ class _NewNoteState extends State<NewNote> {
   final anstwoController = TextEditingController();
 
   final ansthreeController = TextEditingController();
-
-  void submitData() {
-    final enteredTen = ansoneController.text;
-    final enteredReason = anstwoController.text;
-    final enteredChange = ansthreeController.text;
-
-    if (enteredTen.isEmpty || enteredReason.isEmpty || enteredChange.isEmpty) {
-      return;
-    }
-
-    widget.addNt(ansoneController.text, anstwoController.text, ansthreeController.text);
-  
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,28 +27,26 @@ class _NewNoteState extends State<NewNote> {
           children: <Widget>[
             TextField(
               decoration: InputDecoration(
-                  labelText: 'How do you feel on a scale of 1 to 10? 10 being best.'),
+                  labelText: 'How are you feeling overall?'),
               controller: ansoneController,
-              keyboardType: TextInputType.number,
-              onSubmitted: (_) => submitData,
             ),
             TextField(
               decoration: InputDecoration(
-                  labelText: 'Why did you choose that number?'),
+                  labelText: 'How are you doing with work?'),
               controller: anstwoController,
-              onSubmitted: (_) => submitData(),
             ),
             TextField(
               decoration: InputDecoration(
-                  labelText: 'What steps will you take to improve this number?'),
+                  labelText: 'Put any extra notes here.'),
               controller: ansthreeController,
-              onSubmitted: (_) => submitData(),
             ), //TextField(decoration: InputDecoration(labelText: 'How are you feeling today?'),),
             FlatButton(
               child: Text('Save'),
               color: Colors.lightBlue[50],
               textColor: Colors.lightBlue[500],
-              onPressed: submitData,
+              onPressed: () {
+                widget.addNt(ansoneController.text, anstwoController.text, ansthreeController.text);
+              },
             ),
           ],
         ),

@@ -12,6 +12,7 @@ import 'package:flutter_sparkline/flutter_sparkline.dart';
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
+import './widgets/overall.dart';
 import './models/dailynotes.dart';
 
 import 'package:cair_app_v2/ble/bluetooth.dart';
@@ -94,6 +95,9 @@ final SnackBar snackBar =
 void openPage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
+      /*final settingsappBar = AppBar(
+          title: const Text('Settings'),
+        ),*/
       return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -109,20 +113,20 @@ void openPage(BuildContext context) {
   ));
 }
 
-void openNotesPage(BuildContext context, _userNotes) {
+void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Notes', style: TextStyle(color: Colors.brown)),
-          backgroundColor: Colors.brown[100],
+          title: const Text('Notes', style: TextStyle(color: Colors.purple)),
+          backgroundColor: Colors.purple[100],
         ),
         body: SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                NotesList(_userNotes),
+                NotesList(_userNotes, _deleteNote),
                 //NotesList(x),
               ]),
         ),
@@ -143,21 +147,31 @@ class _CairAppState extends State<CairApp> {
   bool init = true;
   bool bt_init = true;
 
-  //DataListStream dlstream = new DataListStream(width: 86400);
-  BluetoothConnection connection;
+  DataListStream dlstream = new DataListStream(width: 86400);
   FlutterBlueApp btapp;
 
   final List<Notes> _userNotes = [
-    /*Notes(
-      ansone: 'I am good',
+    /*
+    Notes(
+      id: DateTime.now(),
+      ansone: '10',
       anstwo: 'I am fine',
       ansthree: 'I am great',
       date: DateTime.now(),
-    ),*/
+    ),
+    Notes(
+      id: DateTime.now(),
+      ansone: '6',
+      anstwo: 'I am fine',
+      ansthree: 'I am great',
+      date: DateTime.now(),
+    ),
+    */
   ];
 
   void _addNewNote(String ntone, String nttwo, String ntthree) {
     final newNt = Notes(
+      id: DateTime.now().toString(),
       ansone: ntone,
       anstwo: nttwo,
       ansthree: ntthree,
@@ -168,6 +182,12 @@ class _CairAppState extends State<CairApp> {
       _userNotes.add(newNt);
     });
     Navigator.of(context).pop(); //close + button after entering note
+  }
+
+  void _deleteNote(String id) {
+    setState(() {
+      _userNotes.removeWhere((nt) => nt.id == id);
+    });
   }
 
   void _startAddNewNote(BuildContext ctx) {
@@ -254,101 +274,110 @@ class _CairAppState extends State<CairApp> {
   String secondanswer;
 
   void _init() {
-    //dlstream.set_stream(count_list());
-    //dlstream.run();
+    dlstream.set_stream(count_list());
+    dlstream.run();
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (init) {
       _init();
       init = false;
     }
+    final appBar = AppBar(
+      backgroundColor: Theme.of(context).primaryColorLight,
+      title: const Text(
+        'FOCAL Homepage',
+        style: TextStyle(
+          fontFamily: 'Quicksand-Bold',
+          color: Colors.deepPurple,
+        ),
+      ),
+      //textTheme: Color(aaaa)
+      //backgroundColor: Colors.lightBlue[100],
+      leading: IconButton(
+        icon: const Icon(Icons.note),
+        tooltip: 'Show notes',
+        color: Theme.of(context).primaryColorDark,
+        onPressed: () {
+          //openNotesPage(context, _userNotes);
+          openNotesPage(context, _userNotes, _deleteNote);
+        },
+      ),
+      centerTitle: true,
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.battery_full),
+          tooltip: 'Show Snackbar',
+          color: Colors.green,
+          onPressed: () {
+            scaffoldKey.currentState.showSnackBar(snackBar);
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          alignment: Alignment.centerLeft,
+          color: Theme.of(context).primaryColorDark,
+          tooltip: 'Settings',
+          onPressed: () {
+            if (bt_init) {
+              btapp = new FlutterBlueApp(dlstream: dlstream);
+              bt_init = false;
+            }
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => btapp));
+          },
+        ),
+      ],
+    );
 
     return Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColorLight,
-        title: const Text(
-          'FOCAL Homepage',
-          style: TextStyle(
-            fontFamily: 'Quicksand-Bold',
-            color: Colors.deepPurple,
-          ),
-        ),
-        //textTheme: Color(aaaa)
-        //backgroundColor: Colors.lightBlue[100],
-        leading: IconButton(
-          icon: const Icon(Icons.note),
-          tooltip: 'Show notes',
-          color: Theme.of(context).primaryColorDark,
-          onPressed: () {
-            openNotesPage(context, _userNotes);
-          },
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.battery_full),
-            tooltip: 'Show Snackbar',
-            color: Colors.green,
-            onPressed: () {
-              scaffoldKey.currentState.showSnackBar(snackBar);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            alignment: Alignment.centerLeft,
-            color: Theme.of(context).primaryColorDark,
-            tooltip: 'Settings',
-            onPressed: () {
-              if (bt_init) {
-                btapp = new FlutterBlueApp(connection: connection);
-                bt_init = false;
-              }
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => btapp));
-            },
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Card(
-              color: Theme.of(context).primaryColorDark,
-              child: Container(
-                width: double.infinity,
-                child: Text('Overall Stress Level:'),
-              ),
-              margin: EdgeInsets.all(5),
-              elevation: 5,
-            ),
-            //UserNotes(),
-            Column(
-              children: graphs.map((gr) {
-                return Container(
-                  width: 400,
-                  child: Card(
-                    child: GraphWidget( //need to import graphwidget
-                      name: gr.title,
-                      width: 300,
-                      height: 150,
-                      color: Theme.of(context).primaryColorDark,
-                      //stream: dlstream,
-                      column: gr.column,
-                      use_static_data: false,
-                      staticData: dataSets[gr.column],
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Container(
+                  height: (MediaQuery.of(context).size.height -
+                          appBar.preferredSize.height - MediaQuery.of(context).padding.top) *
+                      0.2,
+                  child: Overall()),
+              /*
+              Card(
+                color: Theme.of(context).primaryColorDark,
+                child: Container(
+                  width: double.infinity,
+                  child: Text('Overall Stress Level:'),
+                ),
+                margin: EdgeInsets.all(15),
+                elevation: 5,
+              ),*/
+              //UserNotes(),
+              Column(
+                children: graphs.map((gr) {
+                  return Container(
+                    width: 400,
+                    child: Card(
+                      child: GraphWidget(
+                        //need to import graphwidget
+                        name: gr.title,
+                        width: 300,
+                        height: 150,
+                        color: Theme.of(context).primaryColorDark,
+                        stream: dlstream,
+                        column: gr.column,
+                        use_static_data: false,
+                        staticData: dataSets[gr.column],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ]
-        ),
+                  );
+                }).toList(),
+              ),
+            ]),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => _startAddNewNote(context),

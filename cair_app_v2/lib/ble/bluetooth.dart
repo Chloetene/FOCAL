@@ -1,4 +1,3 @@
-//import 'dart:_http';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cair_app_v2/ble/sensor_page.dart';
@@ -6,31 +5,27 @@ import 'package:cair_app_v2/ble/widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import './../util/dataliststream.dart';
 
-final String SERVICEUUID = '0000180d-0000-1000-8000-00805f9b34fb';
-final String CHARACTERISTICUUID = '00002a6e-0000-1000-8000-00805f9b34fb';
-
-class BluetoothConnection {
-  BluetoothConnection() {}
-  void findDevice() {
-
-  }
-  /*
-  void connect() {}
-  disconnect();
-  isConnected();
-  getConnectionState();
-  _run();
-  */
-}
-
 class FlutterBlueApp extends StatelessWidget {
-  const FlutterBlueApp({Key key, this.connection}) : super(key: key);
+  const FlutterBlueApp({Key key, this.dlstream}) : super(key: key);
   
-  final BluetoothConnection connection;
+  final DataListStream dlstream;
 
   @override
   Widget build(BuildContext context) {
-    return DeviceScreen(context: context, connection: connection);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      color: Colors.lightBlue,
+      home: StreamBuilder<BluetoothState>(
+          stream: FlutterBlue.instance.state,
+          initialData: BluetoothState.unknown,
+          builder: (c, snapshot) {
+            final state = snapshot.data;
+            if (state == BluetoothState.on) {
+              return FindDevicesScreen(dlstream: dlstream);
+            }
+            return BluetoothOffScreen(state: state);
+          }),
+    );
   }
 }
 
@@ -66,65 +61,10 @@ class BluetoothOffScreen extends StatelessWidget {
   }
 }
 
-class DeviceScreen extends StatelessWidget {
-  const DeviceScreen({Key key, this.context, this.connection}) : super(key: key);
-
-  final BuildContext context;
-  final BluetoothConnection connection;
-
-  void _find() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => FindDevicesScreen(connection: connection)));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Column col;
-    if (false) {
-      //col: display info of connection
-    } else {
-      col = Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-
-        children: <Widget>[
-          Text(
-            "No device connected.",
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[700],
-            ),
-            textAlign: TextAlign.center
-          ),
-
-          FlatButton(
-            onPressed: _find,
-            textColor: Colors.cyan,
-            splashColor: Colors.cyan[100],
-            disabledColor: Colors.grey,
-            child: Text(
-              "Find Device",
-            ),
-          )
-        ]
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Sensor Device Info")
-      ),
-      body: col //SingleChildScrollView(
-        //child: col
-      //)
-    );
-  }
-}
-
-
 class FindDevicesScreen extends StatelessWidget {
-  FindDevicesScreen({this.connection});
+  FindDevicesScreen({this.dlstream});
 
-  final BluetoothConnection connection;
+  final DataListStream dlstream;
 
   @override
   Widget build(BuildContext context) {
@@ -155,11 +95,10 @@ class FindDevicesScreen extends StatelessWidget {
                                     BluetoothDeviceState.connected) {
                                   return RaisedButton(
                                     child: Text('OPEN'),
-                                    onPressed: () {}
-                                    // => Navigator.of(context).push(
-                                    //    MaterialPageRoute(
-                                    //        builder: (context) =>
-                                    //            DeviceScreen(device: d, dlstream: dlstream))),
+                                    onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                DeviceScreen(device: d, dlstream: dlstream))),
                                   );
                                 }
                                 return Text(snapshot.data.toString());
@@ -179,7 +118,7 @@ class FindDevicesScreen extends StatelessWidget {
                           result: r,
                           onTap: () {
                             r.device.connect();
-                            //SensorPage spage = new SensorPage(device: r.device, dlstream: dlstream);
+                            SensorPage spage = new SensorPage(device: r.device, dlstream: dlstream);
                           },
                         ),
                       )
@@ -212,7 +151,6 @@ class FindDevicesScreen extends StatelessWidget {
   }
 }
 
-/*
 class DeviceScreen extends StatelessWidget {
   const DeviceScreen({Key key, this.device, this.dlstream}) : super(key: key);
 
@@ -354,50 +292,3 @@ class DeviceScreen extends StatelessWidget {
     );
   }
 }
-*/
-
-//MOVE TO ASYNC FUNC
-/*
-                    child: StreamBuilder<List<int>>(
-                      stream: stream,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<int>> snapshot) {
-                        if (snapshot.hasError)
-                          return Text('Error: ${snapshot.error}');
-
-                        if (snapshot.connectionState ==
-                            ConnectionState.active) {
-                          // Get the data from received packet and convert to String
-                          var currentValue1 = (snapshot.data)[0].toString();
-                          var currentValue2 = (snapshot.data)[1].toString();
-                          // Add data to oscilloscope datapoints
-                          traceDust.add(double.tryParse(currentValue1) ?? 0);
-
-                          // Display data in the center of screen
-                          return Center(
-                              child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Expanded(
-                                flex: 1,
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text('Current value from Espruino',
-                                          style: TextStyle(fontSize: 14)),
-                                      Text('${currentValue1}, ${currentValue2}',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 24))
-                                    ]),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: oscilloscope,
-                              )
-                            ],
-                          ));
-                        } else {
-                          return Text('Check the stream');
-                        }
-*/

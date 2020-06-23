@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Notes {
-  String ansone;
-  String anstwo;
-  String ansthree;
-  DateTime date;
+  final String id;
+  final String ansone;
+  final String anstwo;
+  final String ansthree;
+  final DateTime date;
 
   Notes({
+    @required this.id,
     @required this.ansone,
     @required this.anstwo,
     @required this.ansthree,

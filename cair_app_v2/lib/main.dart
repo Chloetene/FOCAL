@@ -147,7 +147,8 @@ class _CairAppState extends State<CairApp> {
   bool init = true;
   bool bt_init = true;
 
-  DataListStream dlstream = new DataListStream(width: 86400);
+  //DataListStream dlstream = new DataListStream(width: 86400);
+  BluetoothConnection connection;
   FlutterBlueApp btapp;
 
   final List<Notes> _userNotes = [
@@ -274,8 +275,8 @@ class _CairAppState extends State<CairApp> {
   String secondanswer;
 
   void _init() {
-    dlstream.set_stream(count_list());
-    dlstream.run();
+    //dlstream.set_stream(count_list());
+    //dlstream.run();
   }
 
   @override
@@ -321,7 +322,7 @@ class _CairAppState extends State<CairApp> {
           tooltip: 'Settings',
           onPressed: () {
             if (bt_init) {
-              btapp = new FlutterBlueApp(dlstream: dlstream);
+              btapp = new FlutterBlueApp(connection: connection);
               bt_init = false;
             }
             Navigator.of(context)
@@ -366,7 +367,7 @@ class _CairAppState extends State<CairApp> {
                         width: 300,
                         height: 150,
                         color: Theme.of(context).primaryColorDark,
-                        stream: dlstream,
+                        //stream: dlstream,
                         column: gr.column,
                         use_static_data: false,
                         staticData: dataSets[gr.column],

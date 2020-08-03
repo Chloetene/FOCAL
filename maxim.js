@@ -61,6 +61,18 @@ const C = {
   REG_PART_ID: 0xFF
 };
 
+//object that holds all relavant register addresses on the MAX30205
+const C = {
+  
+  REG_TEMPERATURE: 0x00, //temperature data is stored here
+  REG_CONFIGURATION: 0x01, //Set bit D0 to 1 to place the device in shutdown mode
+  //Bit D5 selects the temperature data format for the temperature, TOS, and THYST registers. When D5 is 0 (normal format), the data format is two’s complement with a range of 0 C to +50 C.
+  REG_T_HYST: 0x02, //temperature data is stored here
+  REG_T_OS: 0x03 //temperature data is stored here
+
+  //for temp,thyst, and tox, Bits D[15:0] contains the temperature data, with the LSB = 0.00390625 C and the MSB=sign bit
+};
+
 
 //object that holds all data to be used for HR/SpO2 functions
 let register_data = {
@@ -193,6 +205,10 @@ MAX30102.prototype.set_temperature_read = function(){
   heart_sensor.write8(C.REG_TEMP_CONFIG, 0x01);
 };
 
+MAX30102.prototype.sleep = function(){
+  this.write8(C.REG_MODE_CONFIG,0x83);
+};
+
 //gets a temperature reading from the MAX30102
 //note: set_temperature_read needs to be called first before using this function
 MAX30102.prototype.getTemperature = function(saturated_data, unit){
@@ -215,6 +231,35 @@ MAX30102.prototype.getTemperature = function(saturated_data, unit){
     saturated_data.temperature = 1.80 * (temperature) + 32.00;
   }
   
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Functions for MAX30205 temperature reading
+
+MAX30205.prototype.initialize = function(){ // 0 0 0 0 0 0 0 0
+  temp_sensor.write8(C.REG_CONFIGURATION, 0x00); // i believe this is the correct configuration, all the choices seem to be optimal with 0
+};
+
+MAX30205.prototype.one_shot_conversion = function(){ //one-shot enabled 1 0 0 0 0 0 0 1
+  temp_sensor.write8(C.REG_CONFIGURATION, 0x81);
+};
+
+MAX30205.prototype.shutdown = function(){ //shutdown with one-shot disabled 0 0 0 0 0 0 0 1
+  temp_sensor.write8(C.REG_CONFIGURATION, 0x01);
+};
+
+MAX30205.prototype.getTemperature_two = function(saturated_data_two, unit){
+  
+  temperature_two = this.read8(C.REG_TEMPERATURE)[0];
+
+  if(unit == 0){ 
+    saturated_data_two.temperature = temperature;
+  }else{
+    saturated_data_two.temperature = 1.80 * (temperature) + 32.00;
+  }
+
 };
 
 

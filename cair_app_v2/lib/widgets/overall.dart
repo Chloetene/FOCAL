@@ -27,11 +27,11 @@ class Overall extends StatelessWidget {
           ),
           ),
           title: Text(
-            'Overall Stress Level:',
+            'Current Temperature:',
             style: Theme.of(context).textTheme.title,
           ),
           subtitle: Text(
-            'LOW - temp val',
+            '98.6 - temp val',
             style: Theme.of(context).textTheme.subtitle,
           ),
           /*trailing: IconButton(

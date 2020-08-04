@@ -89,51 +89,6 @@ class MyApp extends StatelessWidget {
 }
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-final SnackBar snackBar =
-    const SnackBar(content: Text('Showing Battery Percentage'));
-
-void openPage(BuildContext context) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (BuildContext context) {
-      /*final settingsappBar = AppBar(
-          title: const Text('Settings'),
-        ),*/
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Settings'),
-        ),
-        body: const Center(
-          child: Text(
-            'This is the settings page',
-            style: TextStyle(fontSize: 24),
-          ),
-        ),
-      );
-    },
-  ));
-}
-
-void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Notes', style: TextStyle(color: Colors.purple)),
-          backgroundColor: Colors.purple[100],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                NotesList(_userNotes, _deleteNote),
-                //NotesList(x),
-              ]),
-        ),
-      );
-    },
-  ));
-}
 
 /// This is the stateless widget that the main application instantiates.
 class CairApp extends StatefulWidget {
@@ -150,79 +105,12 @@ class _CairAppState extends State<CairApp> {
   DataListStream dlstream = new DataListStream(width: 86400);
   FlutterBlueApp btapp;
 
-  final List<Notes> _userNotes = [
-    /*
-    Notes(
-      id: DateTime.now(),
-      ansone: '10',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    Notes(
-      id: DateTime.now(),
-      ansone: '6',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),
-    */
-  ];
-
-  void _addNewNote(String ntone, String nttwo, String ntthree) {
-    final newNt = Notes(
-      id: DateTime.now().toString(),
-      ansone: ntone,
-      anstwo: nttwo,
-      ansthree: ntthree,
-      date: DateTime.now(),
-    );
-
-    setState(() {
-      _userNotes.add(newNt);
-    });
-    Navigator.of(context).pop(); //close + button after entering note
-  }
-
-  void _deleteNote(String id) {
-    setState(() {
-      _userNotes.removeWhere((nt) => nt.id == id);
-    });
-  }
-
-  void _startAddNewNote(BuildContext ctx) {
-    showModalBottomSheet(
-      context: ctx,
-      builder: (_) {
-        return GestureDetector(
-          onTap: () {},
-          child: NewNote(_addNewNote),
-          behavior: HitTestBehavior.opaque,
-        );
-      },
-    );
-  }
-
   final List<Graph> graphs = [
-    Graph(
-      title: 'Heart Rate (bpm)',
-      date: DateTime.now(),
-      column: 0,
-    ),
-    Graph(
-      title: 'SpO2 (%)',
-      date: DateTime.now(),
-      column: 1,
-    ),
+    
     Graph(
       title: 'Temperature (°F)',
       date: DateTime.now(),
       column: 2,
-    ),
-    Graph(
-      title: 'Pressure (N)',
-      date: DateTime.now(),
-      column: 3,
     ),
   ];
 
@@ -295,40 +183,8 @@ class _CairAppState extends State<CairApp> {
       ),
       //textTheme: Color(aaaa)
       //backgroundColor: Colors.lightBlue[100],
-      leading: IconButton(
-        icon: const Icon(Icons.note),
-        tooltip: 'Show notes',
-        color: Theme.of(context).primaryColorDark,
-        onPressed: () {
-          //openNotesPage(context, _userNotes);
-          openNotesPage(context, _userNotes, _deleteNote);
-        },
-      ),
+    
       centerTitle: true,
-      actions: <Widget>[
-        IconButton(
-          icon: const Icon(Icons.battery_full),
-          tooltip: 'Show Snackbar',
-          color: Colors.green,
-          onPressed: () {
-            scaffoldKey.currentState.showSnackBar(snackBar);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.settings),
-          alignment: Alignment.centerLeft,
-          color: Theme.of(context).primaryColorDark,
-          tooltip: 'Settings',
-          onPressed: () {
-            if (bt_init) {
-              btapp = new FlutterBlueApp(dlstream: dlstream);
-              bt_init = false;
-            }
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => btapp));
-          },
-        ),
-      ],
     );
 
     return Scaffold(
@@ -376,11 +232,6 @@ class _CairAppState extends State<CairApp> {
                 }).toList(),
               ),
             ]),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _startAddNewNote(context),
       ),
     );
   }

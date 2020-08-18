@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cair_app_v3/ble/sensor_page.dart';
 import 'package:cair_app_v3/ble/widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:cair_app_v3/main.dart';
 
 class FlutterBlueApp extends StatelessWidget {
   const FlutterBlueApp({Key key}) : super(key: key);
@@ -112,7 +113,7 @@ class FindDevicesScreen extends StatelessWidget {
                           onTap: () => Navigator.of(context)
                               .push(MaterialPageRoute(builder: (context) {
                             r.device.connect();
-                            return SensorPage(device: r.device);
+                            return MyStatelessWidget(device: r.device);
                           })),
                         ),
                       )

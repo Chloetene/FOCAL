@@ -2,12 +2,13 @@
 
 // This sample shows an [AppBar] with two simple actions. The first action
 // opens a [SnackBar], while the second action navigates to a new page.
-
+import 'dart:async';
 import 'package:cair_app_v3/widgets/new_note.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 import './models/graphs.dart';
 import './widgets/notes_list.dart';
@@ -65,9 +66,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-final SnackBar snackBar =
-    const SnackBar(content: Text('Showing Battery Percentage'));
+final SnackBar snackBar = const SnackBar(content: Text('Showing Battery Percentage'));
 
 void openPage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
@@ -111,13 +110,117 @@ void openNotesPage(BuildContext context, _userNotes) {
 
 /// This is the stateless widget that the main application instantiates.
 class MyStatelessWidget extends StatefulWidget {
-  MyStatelessWidget({Key key}) : super(key: key);
+  MyStatelessWidget({Key key, this.device}) : super(key: key);
+  final BluetoothDevice device;
 
   @override
   _MyStatelessWidgetState createState() => _MyStatelessWidgetState();
 }
 
 class _MyStatelessWidgetState extends State<MyStatelessWidget> {
+  
+
+  final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
+  final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
+  bool isReady;
+  Stream<List<int>> stream;
+
+  @override
+  void initState() {
+    super.initState();
+    isReady = false;
+    connectToDevice();
+  }
+
+  /* 
+    Connect to the selected device with a 15 second timer before timeout
+  */
+  connectToDevice() async {
+    if (widget.device == null) {
+      //_Pop();
+      return;
+    }
+
+    new Timer(const Duration(seconds: 15), () {
+      if (!isReady) {
+        disconnectFromDevice();
+        //_Pop();
+      }
+    });
+
+    await widget.device.connect();
+    discoverServices();
+  }
+
+  disconnectFromDevice() {
+    if (widget.device == null) {
+      _Pop();
+      return;
+    }
+
+    widget.device.disconnect();
+  }
+
+  discoverServices() async {
+    if (widget.device == null) {
+      _Pop();
+      return;
+    }
+
+    List<BluetoothService> services = await widget.device.discoverServices();
+    // Iterate through each found service UUIDs of the device
+    services.forEach((service) {
+      // Check if the wanted service UUID is available
+      if (service.uuid.toString() == SERVICE_UUID) {
+        // Iterate through each found characteristic UUIDs of the device
+        service.characteristics.forEach((characteristic) {
+          // Check if the wanted characteristic UUID is available
+          if (characteristic.uuid.toString() == CHARACTERISTIC_UUID) {
+            // Sets the notify parameter of the bluetooth device to FALSE to indicate
+            // most recent sent data was received successfully
+            characteristic.setNotifyValue(!characteristic.isNotifying);
+            // Read the value inside the characteristic UUID
+            stream = characteristic.value;
+
+            setState(() {
+              isReady = true;
+            });
+          }
+        });
+      }
+    });
+
+    if (!isReady) {
+      _Pop();
+    }
+  }
+
+  Future<bool> _onWillPop() {
+    return showDialog(
+        context: context,
+        builder: (context) =>
+            new AlertDialog(
+              title: Text('Are you sure?'),
+              content: Text('Do you want to disconnect device and go back?'),
+              actions: <Widget>[
+                new FlatButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: new Text('No')),
+                new FlatButton(
+                    onPressed: () {
+                      disconnectFromDevice();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: new Text('Yes')),
+              ],
+            ) ??
+            false);
+  }
+
+  _Pop() {
+    Navigator.of(context).pop(true);
+  }
+
   final List<Notes> _userNotes = [
     /*Notes(
       ansone: 'I am good',
@@ -177,16 +280,17 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    return WillPopScope(
+      onWillPop: _onWillPop,
       key: scaffoldKey,
-      appBar: AppBar(
+      child: Scaffold(
+        appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColorLight,
         title: const Text(
           'FOCAL Homepage',
           style: TextStyle(fontFamily: 'Quicksand-Bold', color: Colors.purple),
         ),
-        //textTheme: Color(aaaa)
-        //backgroundColor: Colors.lightBlue[100],
         leading: IconButton(
           icon: const Icon(Icons.note),
           tooltip: 'Show notes',
@@ -216,7 +320,15 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
+        child: //!isReady
+          // ? Center(
+          //     child: Text(
+          //       "Connect to an Espruino device.",
+          //       style: TextStyle(fontSize: 24, color: Colors.red),
+          //     ),
+          //   )
+          //: 
+          Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -229,74 +341,51 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                 margin: EdgeInsets.all(5),
                 elevation: 5,
               ),
-              //UserNotes(),
-              Column(
-                children: graphs.map((gr) {
-                  return Card(
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 15,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.lightBlue[300],
-                              width: 2,
+              Container(
+                child: StreamBuilder<List<int>>(
+                  stream: stream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<int>> snapshot) {
+                    if (snapshot.hasError)
+                      return Text('Error: ${snapshot.error}');
+
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      // Get the data from received packet and convert to String
+                      var currentValue1 = (snapshot.data)[0].toString();
+                      var currentValue2 = (snapshot.data)[1].toString();
+
+                      // Display data in the center of screen
+                      return Center(
+                        child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Card(
+                            child: Container(
+                                child: Container (
+                                  width: double.infinity,
+                                  child: Text('${currentValue1}, ${currentValue2}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24)),
+                                ),
                             ),
                           ),
-                          padding: EdgeInsets.all(10),
-                          //child: Text(
-                          //  'Status: ' + gr.id.toString(),
-                          //  style: Theme.of(context).textTheme.title,
-                          //),
-                          child: Container(
-                            width: 150.0,
-                            height: 100.0,
-                            child: Sparkline(
-                              data: gr.data,
-                              lineGradient: new LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.red, Colors.yellow, Colors.green],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              gr.title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.lightBlue[300],
-                              ),
-                            ),
-                            Text(
-                              'Last Update: ' +
-                                  DateFormat.yMd().add_jm().format(gr
-                                      .date), //can do .format('yyyy-MM-dd'), etc.
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.blueGrey,
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+                        ],
+                      ));
+                    } else {
+                      return Text('Check the stream');
+                    }
+                  },
+                ),
+              )
             ]),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _startAddNewNote(context),
-      ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () => _startAddNewNote(context),
+        ),
+      )
     );
   }
 }
+

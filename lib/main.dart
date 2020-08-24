@@ -124,6 +124,11 @@ void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
   ));
 }
 
+//SnackBar show_snackbar(context) {
+//  return scaffoldKey.currentState.showSnackBar(snackBar);
+//}
+
+
 /// This is the stateless widget that the main application instantiates.
 class CairApp extends StatefulWidget {
   CairApp({Key key, this.device}) : super(key: key);
@@ -302,9 +307,7 @@ class _CairAppState extends State<CairApp> {
           icon: const Icon(Icons.battery_full),
           tooltip: 'Show Snackbar',
           color: Colors.green,
-          onPressed: () {
-            scaffoldKey.currentState.showSnackBar(snackBar);
-          },
+          onPressed: () => scaffoldKey.currentState.showSnackBar(snackBar),
         ),
         IconButton(
           icon: const Icon(Icons.settings),
@@ -319,8 +322,9 @@ class _CairAppState extends State<CairApp> {
 
     return WillPopScope(
       onWillPop: _onWillPop,
-      key: scaffoldKey,
+      //key: scaffoldKey,
       child: Scaffold(
+        key: scaffoldKey,
         appBar: appBar,
         body: SingleChildScrollView(
           child: !isReady

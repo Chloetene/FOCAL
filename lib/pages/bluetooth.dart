@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cair_app_v3/ble/sensor_page.dart';
-import 'package:cair_app_v3/ble/widgets.dart';
+import 'package:cair_app_v3/widgets/bt_widgets.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:cair_app_v3/main.dart';
 
@@ -12,7 +11,26 @@ class FlutterBlueApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      color: Colors.lightBlue,
+      theme: ThemeData(
+          primarySwatch: Colors.green,
+          accentColor: Colors.amber,
+          fontFamily: 'Quicksand',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+          appBarTheme: AppBarTheme(
+            textTheme: ThemeData.light().textTheme.copyWith(
+                  title: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+      )),
       home: StreamBuilder<BluetoothState>(
           stream: FlutterBlue.instance.state,
           initialData: BluetoothState.unknown,

@@ -1,27 +1,15 @@
-// Flutter code sample for AppBar
-
-// This sample shows an [AppBar] with two simple actions. The first action
-// opens a [SnackBar], while the second action navigates to a new page.
-
 import 'dart:async';
-//import 'package:cair_app_v3/widgets/new_note.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-//import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-//import 'package:charts_flutter/flutter.dart' as charts;
 
-//import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
 import './widgets/overall.dart';
+import './widgets/time_series_chart.dart';
 import './models/dailynotes.dart';
 
-import 'package:cair_app_v3/ble/bluetooth.dart';
-//import 'package:cair_app_v3/ble/sensor_page.dart';
-//import './widgets/graphwidget.dart';
-//import './util/dataliststream.dart';
+import 'package:cair_app_v3/pages/bluetooth.dart';
 
 void main() => runApp(MyApp());
 
@@ -49,7 +37,7 @@ class NotificationDetails {
 
 /// This Widget is the main application widget.
 class MyApp extends StatelessWidget {
-  static const String _title = 'Flutter Code Sample';
+  static const String _title = 'FOCAL';
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +68,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-final SnackBar snackBar =
-    const SnackBar(content: Text('Showing Battery Percentage'));
+final SnackBar snackBar = const SnackBar(content: Text('Showing Battery Percentage'));
 
 void openPage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
@@ -124,11 +110,6 @@ void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
   ));
 }
 
-//SnackBar show_snackbar(context) {
-//  return scaffoldKey.currentState.showSnackBar(snackBar);
-//}
-
-
 /// This is the stateless widget that the main application instantiates.
 class CairApp extends StatefulWidget {
   CairApp({Key key, this.device}) : super(key: key);
@@ -138,7 +119,12 @@ class CairApp extends StatefulWidget {
   _CairAppState createState() => _CairAppState();
 }
 
+
 class _CairAppState extends State<CairApp> {
+  final List<TempSeries> data = [];
+  int domainCtr = 0;
+  final int PLOT_POINTS = 20;
+
   final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
   final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
   bool isReady;
@@ -198,7 +184,7 @@ class _CairAppState extends State<CairApp> {
     new Timer(const Duration(seconds: 15), () {
       if (!isReady) {
         disconnectFromDevice();
-        //_Pop();
+        _Pop();
       }
     });
 
@@ -277,10 +263,8 @@ class _CairAppState extends State<CairApp> {
 
   @override
   Widget build(BuildContext context) {
-    /*if (init) {
-      _init();
-      init = false;
-    }*/
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    
     final appBar = AppBar(
       backgroundColor: Theme.of(context).primaryColorLight,
       title: const Text(
@@ -290,14 +274,12 @@ class _CairAppState extends State<CairApp> {
           color: Colors.deepPurple,
         ),
       ),
-      //textTheme: Color(aaaa)
-      //backgroundColor: Colors.lightBlue[100],
+
       leading: IconButton(
         icon: const Icon(Icons.note),
         tooltip: 'Show notes',
         color: Theme.of(context).primaryColorDark,
         onPressed: () {
-          //openNotesPage(context, _userNotes);
           openNotesPage(context, _userNotes, _deleteNote);
         },
       ),
@@ -322,7 +304,6 @@ class _CairAppState extends State<CairApp> {
 
     return WillPopScope(
       onWillPop: _onWillPop,
-      //key: scaffoldKey,
       child: Scaffold(
         key: scaffoldKey,
         appBar: appBar,
@@ -362,16 +343,28 @@ class _CairAppState extends State<CairApp> {
                               stream: stream,
                               builder: (BuildContext context,
                                   AsyncSnapshot<List<int>> snapshot) {
+                                
                                 if (snapshot.hasError)
                                   return Text('Error: ${snapshot.error}');
 
                                 if (snapshot.connectionState ==
                                     ConnectionState.active) {
                                   // Get the data from received packet and convert to String
-                                  var currentValue1 =
-                                      (snapshot.data)[0].toString();
-                                  var currentValue2 =
-                                      (snapshot.data)[1].toString();
+                                  var currentValue1 = (snapshot.data)[0].toString();
+                                  var currentValue2 = (snapshot.data)[1].toString();
+
+                                  var currentTime = new DateTime.now();
+
+                                  // Pop first index of chart data list when plot points reach its current limit
+                                  if (domainCtr == PLOT_POINTS) {
+                                    data.removeAt(0);
+                                    domainCtr = 0;
+                                  }
+
+                                  // Currently visualizing the capSense data;
+                                  // Append each sensor data reading to the chart data list
+                                  data.add(TempSeries(currentTime, (snapshot.data)[0]));
+                                  domainCtr++;
 
                                   // Display data in the center of screen
                                   return Center(
@@ -383,17 +376,27 @@ class _CairAppState extends State<CairApp> {
                                           child: Container(
                                             width: double.infinity,
                                             child: Text(
-                                                '${currentValue1}, ${currentValue2}',
+                                                'CapSense: ${currentValue1}, \nTemperature: ${currentValue2}°C',
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 24)),
                                           ),
                                         ),
                                       ),
+                                      TemperatureChart(data: data),
                                     ],
                                   ));
                                 } else {
-                                  return Text('Check the stream');
+                                  return Center(
+                                    child: Card(
+                                      child: Text('Waiting to receive clean sensor data...',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 }
                               },
                             ),

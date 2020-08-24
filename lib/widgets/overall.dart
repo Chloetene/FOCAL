@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class Overall extends StatelessWidget {
-  //final List<Transaction> recentTransactions;
-
   //Overall(this.recentTransactions);
   @override
   Widget build(BuildContext context) {

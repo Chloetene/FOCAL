@@ -2,20 +2,26 @@
 
 // This sample shows an [AppBar] with two simple actions. The first action
 // opens a [SnackBar], while the second action navigates to a new page.
+
 import 'dart:async';
-import 'package:cair_app_v3/widgets/new_note.dart';
+//import 'package:cair_app_v3/widgets/new_note.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_sparkline/flutter_sparkline.dart';
+//import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:charts_flutter/flutter.dart' as charts;
 
-import './models/graphs.dart';
+//import './models/graphs.dart';
 import './widgets/notes_list.dart';
 import './widgets/new_note.dart';
+import './widgets/overall.dart';
 import './models/dailynotes.dart';
 
 import 'package:cair_app_v3/ble/bluetooth.dart';
+//import 'package:cair_app_v3/ble/sensor_page.dart';
+//import './widgets/graphwidget.dart';
+//import './util/dataliststream.dart';
 
 void main() => runApp(MyApp());
 
@@ -50,23 +56,33 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: _title,
       theme: ThemeData(
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.green,
           accentColor: Colors.amber,
           fontFamily: 'Quicksand',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
           appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-                    title: TextStyle(
-                  fontFamily: 'OpenSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                )),
+                  title: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           )),
-      home: MyStatelessWidget(),
+      home: CairApp(),
     );
   }
 }
 
-final SnackBar snackBar = const SnackBar(content: Text('Showing Battery Percentage'));
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+final SnackBar snackBar =
+    const SnackBar(content: Text('Showing Battery Percentage'));
 
 void openPage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
@@ -86,20 +102,20 @@ void openPage(BuildContext context) {
   ));
 }
 
-void openNotesPage(BuildContext context, _userNotes) {
+void openNotesPage(BuildContext context, _userNotes, _deleteNote) {
   Navigator.push(context, MaterialPageRoute(
     builder: (BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Notes', style: TextStyle(color: Colors.brown)),
-          backgroundColor: Colors.brown[100],
+          title: const Text('Notes', style: TextStyle(color: Colors.purple)),
+          backgroundColor: Colors.purple[100],
         ),
         body: SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                NotesList(_userNotes),
+                NotesList(_userNotes, _deleteNote),
                 //NotesList(x),
               ]),
         ),
@@ -109,27 +125,60 @@ void openNotesPage(BuildContext context, _userNotes) {
 }
 
 /// This is the stateless widget that the main application instantiates.
-class MyStatelessWidget extends StatefulWidget {
-  MyStatelessWidget({Key key, this.device}) : super(key: key);
+class CairApp extends StatefulWidget {
+  CairApp({Key key, this.device}) : super(key: key);
   final BluetoothDevice device;
 
   @override
-  _MyStatelessWidgetState createState() => _MyStatelessWidgetState();
+  _CairAppState createState() => _CairAppState();
 }
 
-class _MyStatelessWidgetState extends State<MyStatelessWidget> {
-  
-
+class _CairAppState extends State<CairApp> {
   final String SERVICE_UUID = '0000180d-0000-1000-8000-00805f9b34fb';
   final String CHARACTERISTIC_UUID = '00002a6e-0000-1000-8000-00805f9b34fb';
   bool isReady;
   Stream<List<int>> stream;
+  final List<Notes> _userNotes = [];
 
   @override
   void initState() {
     super.initState();
     isReady = false;
     connectToDevice();
+  }
+
+  void _addNewNote(String ntone, String nttwo, String ntthree) {
+    final newNt = Notes(
+      id: DateTime.now().toString(),
+      ansone: ntone,
+      anstwo: nttwo,
+      ansthree: ntthree,
+      date: DateTime.now(),
+    );
+
+    setState(() {
+      _userNotes.add(newNt);
+    });
+    Navigator.of(context).pop(); //close + button after entering note
+  }
+
+  void _deleteNote(String id) {
+    setState(() {
+      _userNotes.removeWhere((nt) => nt.id == id);
+    });
+  }
+
+  void _startAddNewNote(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (_) {
+        return GestureDetector(
+          onTap: () {},
+          child: NewNote(_addNewNote),
+          behavior: HitTestBehavior.opaque,
+        );
+      },
+    );
   }
 
   /* 
@@ -221,171 +270,140 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
     Navigator.of(context).pop(true);
   }
 
-  final List<Notes> _userNotes = [
-    /*Notes(
-      ansone: 'I am good',
-      anstwo: 'I am fine',
-      ansthree: 'I am great',
-      date: DateTime.now(),
-    ),*/
-  ];
-
-  void _addNewNote(String ntone, String nttwo, String ntthree) {
-    final newNt = Notes(
-      ansone: ntone,
-      anstwo: nttwo,
-      ansthree: ntthree,
-      date: DateTime.now(),
-    );
-
-    setState(() {
-      _userNotes.add(newNt);
-    });
-    Navigator.of(context).pop(); //close + button after entering note
-  }
-
-  void _startAddNewNote(BuildContext ctx) {
-    showModalBottomSheet(
-      context: ctx,
-      builder: (_) {
-        return GestureDetector(
-          onTap: () {},
-          child: NewNote(_addNewNote),
-          behavior: HitTestBehavior.opaque,
-        );
-      },
-    );
-  }
-
-  final List<Graph> graphs = [
-    Graph(
-      id: 'g1',
-      title: 'First Graph',
-      amount: 10,
-      date: DateTime.now(),
-      data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-    ),
-    Graph(
-      id: 'g2',
-      title: 'Second Graph',
-      amount: 8,
-      date: DateTime.now(),
-      data: [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0],
-    ),
-  ];
-
-  String titleInput;
-  String firstanswer;
-  String secondanswer;
-
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    /*if (init) {
+      _init();
+      init = false;
+    }*/
+    final appBar = AppBar(
+      backgroundColor: Theme.of(context).primaryColorLight,
+      title: const Text(
+        'FOCAL Homepage',
+        style: TextStyle(
+          fontFamily: 'Quicksand-Bold',
+          color: Colors.deepPurple,
+        ),
+      ),
+      //textTheme: Color(aaaa)
+      //backgroundColor: Colors.lightBlue[100],
+      leading: IconButton(
+        icon: const Icon(Icons.note),
+        tooltip: 'Show notes',
+        color: Theme.of(context).primaryColorDark,
+        onPressed: () {
+          //openNotesPage(context, _userNotes);
+          openNotesPage(context, _userNotes, _deleteNote);
+        },
+      ),
+      centerTitle: true,
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.battery_full),
+          tooltip: 'Show Snackbar',
+          color: Colors.green,
+          onPressed: () {
+            scaffoldKey.currentState.showSnackBar(snackBar);
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          alignment: Alignment.centerLeft,
+          color: Theme.of(context).primaryColorDark,
+          tooltip: 'Settings',
+          onPressed: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => FlutterBlueApp())),
+        ),
+      ],
+    );
+
     return WillPopScope(
       onWillPop: _onWillPop,
       key: scaffoldKey,
       child: Scaffold(
-        appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColorLight,
-        title: const Text(
-          'FOCAL Homepage',
-          style: TextStyle(fontFamily: 'Quicksand-Bold', color: Colors.purple),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.note),
-          tooltip: 'Show notes',
-          color: Theme.of(context).primaryColorDark,
-          onPressed: () {
-            openNotesPage(context, _userNotes);
-          },
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.battery_full),
-            tooltip: 'Show Snackbar',
-            color: Colors.green,
-            onPressed: () {
-              scaffoldKey.currentState.showSnackBar(snackBar);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            alignment: Alignment.centerLeft,
-            color: Theme.of(context).primaryColorDark,
-            tooltip: 'Settings',
-            onPressed: () => Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) => FlutterBlueApp())),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: //!isReady
-          // ? Center(
-          //     child: Text(
-          //       "Connect to an Espruino device.",
-          //       style: TextStyle(fontSize: 24, color: Colors.red),
-          //     ),
-          //   )
-          //: 
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Card(
-                color: Theme.of(context).primaryColorDark,
-                child: Container(
-                  width: double.infinity,
-                  child: Text('CHART NO. 1'),
-                ),
-                margin: EdgeInsets.all(5),
-                elevation: 5,
-              ),
-              Container(
-                child: StreamBuilder<List<int>>(
-                  stream: stream,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<int>> snapshot) {
-                    if (snapshot.hasError)
-                      return Text('Error: ${snapshot.error}');
-
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      // Get the data from received packet and convert to String
-                      var currentValue1 = (snapshot.data)[0].toString();
-                      var currentValue2 = (snapshot.data)[1].toString();
-
-                      // Display data in the center of screen
-                      return Center(
-                        child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+        appBar: appBar,
+        body: SingleChildScrollView(
+          child: !isReady
+              ? Center(
+                  child: Text(
+                    "Connect to an Espruino device.",
+                    style: TextStyle(fontSize: 24, color: Colors.red),
+                  ),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Container(
+                        height: (MediaQuery.of(context).size.height -
+                                appBar.preferredSize.height -
+                                MediaQuery.of(context).padding.top) *
+                            0.2,
+                        child: Overall()),
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           Card(
+                            color: Theme.of(context).primaryColorDark,
                             child: Container(
-                                child: Container (
-                                  width: double.infinity,
-                                  child: Text('${currentValue1}, ${currentValue2}',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 24)),
-                                ),
+                              width: double.infinity,
+                              child: Text('CHART NO. 1'),
                             ),
+                            margin: EdgeInsets.all(5),
+                            elevation: 5,
                           ),
-                        ],
-                      ));
-                    } else {
-                      return Text('Check the stream');
-                    }
-                  },
+                          Container(
+                            child: StreamBuilder<List<int>>(
+                              stream: stream,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<List<int>> snapshot) {
+                                if (snapshot.hasError)
+                                  return Text('Error: ${snapshot.error}');
+
+                                if (snapshot.connectionState ==
+                                    ConnectionState.active) {
+                                  // Get the data from received packet and convert to String
+                                  var currentValue1 =
+                                      (snapshot.data)[0].toString();
+                                  var currentValue2 =
+                                      (snapshot.data)[1].toString();
+
+                                  // Display data in the center of screen
+                                  return Center(
+                                      child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Card(
+                                        child: Container(
+                                          child: Container(
+                                            width: double.infinity,
+                                            child: Text(
+                                                '${currentValue1}, ${currentValue2}',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 24)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ));
+                                } else {
+                                  return Text('Check the stream');
+                                }
+                              },
+                            ),
+                          )
+                        ]),
+                  ],
                 ),
-              )
-            ]),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () => _startAddNewNote(context),
         ),
-      )
+      ),
     );
   }
 }
-

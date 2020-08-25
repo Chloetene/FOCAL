@@ -1,6 +1,6 @@
-# ble_test
+# FOCAL
 
-Bluetooth setup for the CAIR app.
+Current version of the FOCAL App.
 
 ## Getting Started
 
